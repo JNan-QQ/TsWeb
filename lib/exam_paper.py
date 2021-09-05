@@ -8,16 +8,16 @@ from hytest import *
 from selenium import webdriver
 from lib.doQuestions import student_do_homework
 from selenium.webdriver.support.ui import Select
-from config.config import url_base
+from config.config import UrlBase
 from lib.loginTs import login
 
 
-class Student_exam:
-    mode_url = url_base.rc['mode_url']
+class StudentExam:
+    mode_url = UrlBase.rc['mode_url']
     mode_name = ['人机对话', '笔试考场']
     driver = None
 
-    def get_exam_paper(self, driver, mode=1, url=None):
+    def getExamPage(self, driver, mode=1, url=None):
         sleep(1)
         INFO(f'进入{self.mode_name[mode - 1]}界面')
         self.driver: webdriver.Edge = driver
@@ -33,7 +33,7 @@ class Student_exam:
             sleep(1)
         return True
 
-    def choise_grade(self, grade):
+    def choiseGrade(self, grade):
         grades = {
             '6A': '六年级上',
             '6B': '六年级下',
@@ -63,7 +63,7 @@ class Student_exam:
 
         return True
 
-    def chose_paper(self, paper_name, mode):
+    def chosePaper(self, paper_name, mode):
         list1 = ['.rjdh_paper_title', '.bishi_paper_title']
         while True:
             flg = False
@@ -82,7 +82,7 @@ class Student_exam:
 
         return True
 
-    def do_paper(self, paper_name):
+    def doPaper(self, paper_name):
         # 等待试卷加载
         sleep(1.5)
         while True:
@@ -115,7 +115,7 @@ class Student_exam:
             ques_type = ques.get_attribute('data-type')
             INFO(f'进行第{n}题试题作答、判断')
             try:
-                student_do_homework.ques_handler(ques_id, ques_type, ques, self.driver)
+                student_do_homework.quesHandler(ques_id, ques_type, ques, self.driver)
                 print(f'第{n}题试题作答、判断完成！！！')
             except:
                 # SELENIUM_LOG_SCREEN(self.driver, width='70%')
@@ -150,7 +150,7 @@ class Student_exam:
 
         return True
 
-    def check_result(self):
+    def checkResult(self):
         right = [i.text for i in self.driver.find_elements_by_css_selector('.answer_list_right_class')]
         wrong = [i.text for i in self.driver.find_elements_by_css_selector('.answer_list_wrong_class')]
         INFO(f'答对的题目序号：{right}')
@@ -159,14 +159,14 @@ class Student_exam:
         return True
 
 
-student_exam = Student_exam()
+studentExam = StudentExam()
 
 if __name__ == "__main__":
-    from config.config import browser_driver
+    from config.config import BrowserDriver
 
-    login.open_browser(browser_driver.student_browser)
-    login.login(username='waiyan', password='123456lj', url=url_base.rc['login_url'])
-    student_exam.get_exam_paper(login.driver)
-    student_exam.choise_grade('9A')
-    student_exam.chose_paper('江苏省9AU01人机对话单元卷01', 1)
-    student_exam.do_paper('江苏省9AU01人机对话单元卷01')
+    login.open_browser(BrowserDriver.student_browser)
+    login.login(username='waiyan', password='123456lj', url=UrlBase.rc['login_url'])
+    studentExam.getExamPage(login.driver)
+    studentExam.choiseGrade('9A')
+    studentExam.chosePaper('江苏省9AU01人机对话单元卷01', 1)
+    studentExam.doPaper('江苏省9AU01人机对话单元卷01')

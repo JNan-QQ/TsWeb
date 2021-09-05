@@ -4,13 +4,13 @@
 # @Author    :姜楠
 # @Tool      :PyCharm
 from hytest import *
-from config.config import cases_config
+from config.config import CasesConfig
 import win32com.client
 import xlrd
 
 
 class MySignalHandler:
-    TEST_RET_COL_NO = cases_config.case_result  # 测试结果在用例excel文件中的列数
+    TEST_RET_COL_NO = CasesConfig.case_result  # 测试结果在用例excel文件中的列数
 
     def __init__(self):
         self.caseNum2Row = {}  # 用例编号->行数 表
@@ -18,7 +18,7 @@ class MySignalHandler:
 
         self.excel = win32com.client.Dispatch("Excel.Application")
         self.excel.Visible = True
-        workbook = self.excel.Workbooks.Open(cases_config.cases_path)
+        workbook = self.excel.Workbooks.Open(CasesConfig.cases_path)
         self.sheet = workbook.Sheets(1)
 
     def getCaseNum2RowInExcel(self):
@@ -26,7 +26,7 @@ class MySignalHandler:
         得到Excel 中用例 编号对应的行数，方便填写测试结果
         """
 
-        book = xlrd.open_workbook(cases_config.cases_path)
+        book = xlrd.open_workbook(CasesConfig.cases_path)
         sheet = book.sheet_by_index(0)
         caseNumbers = sheet.col_values(colx=0)
         print(caseNumbers)

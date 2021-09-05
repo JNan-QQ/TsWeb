@@ -6,7 +6,8 @@
 import os
 
 
-class account:
+# 账号信息
+class AccountConfig:
     # 老师账号信息
     teacher = {
         'alpha': {
@@ -47,7 +48,7 @@ class account:
 
 
 # 测试用例cases配置
-class cases_config:
+class CasesConfig:
     # 用例编号在文件xlsx下的列数
     case_No = 1
     # 测试用例结果在文件xlsx下的列数
@@ -56,7 +57,8 @@ class cases_config:
     cases_path = os.getcwd() + r'\config\cases.xlsx'
 
 
-class browser_driver:
+# 浏览器与驱动
+class BrowserDriver:
     # 浏览器驱动路径
     teacher_browser = {
         'browser_kernel': 'Chrome',
@@ -84,7 +86,8 @@ class browser_driver:
     }
 
 
-class url_base:
+# url配置
+class UrlBase:
     alpha = {
         'login_url': r'https://jiangnan-www.b.waiyutong.org/',
         'mode_url': [r'http://jiangnan-student.b.waiyutong.org/Paper/renjiduihua.html',
@@ -102,5 +105,12 @@ class url_base:
     }
 
 
+# lib配置
+class LibConfig:
+    verificationHost = r'http://104.41.177.149'
+    mysqlAplha = ['192.168.1.186', 'ts_waiyutong', 'Ts*#!@#123WYT']
+    mysqlBeta = ['121.41.116.146', 'waiyutong_read', 'Ts123456']
+
+
 if __name__ == "__main__":
-    print(cases_config.cases_path)
+    print(CasesConfig.cases_path)

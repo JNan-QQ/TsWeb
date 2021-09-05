@@ -5,6 +5,8 @@
 # @Tool      :PyCharm
 import difflib
 from hytest import INFO
+import os
+import requests
 
 """
 检测图片完整性
@@ -14,27 +16,51 @@ PNG文件结尾标识：\xaeB`\x82
 """
 
 
-class CheckImage(object):
+class ImageCheck:
+    def checkImage(self, image_path=None, image_steam=None):
+        type_dict = {
+            'jpg': [b'\xff\xd8', b'\xff\xd9'],
+            'png': [b'\x89PNG', b'\xaeB`\x82'],
+            'jpeg': [b'\xff\xd8', b'\xff\xd9'],
+        }
+        if image_path:
+            file_type = image_path.split('.')[-1].lower()
 
-    def __init__(self, img):
-        with open(img, "rb") as f:
-            f.seek(-2, 2)
-            self.img_text = f.read()
-            f.close()
+            with open(image_path, 'rb') as image:
+                data = image.read()
+            if file_type in ['jpeg', 'jpg']:
+                return [data[:2], data[-2:]] == type_dict[file_type]
+            elif file_type == 'png':
+                return [data[:4], data[-4:]] == type_dict[file_type]
 
-    def check_jpg_jpeg(self):
-        """检测jpg图片完整性，完整返回True，不完整返回False"""
-        buf = self.img_text
-        return buf.endswith(b'\xff\xd9')
+        if image_steam:
+            data = image_steam
+            flg = False
+            if [data[:2], data[-2:]] == type_dict['jpg']:
+                flg = True
+            elif [data[:4], data[-4:]] == type_dict['png']:
+                flg = True
+            return flg
 
-    def check_png(self):
-        """检测png图片完整性，完整返回True，不完整返回False"""
+    def DownloadImage(self, image_url):
+        response = requests.get(image_url)
+        if response.status_code == 200:
+            return response.content
+        else:
+            return False
 
-        buf = self.img_text
-        return buf.endswith(b'\xaeB`\x82')
+    def run(self, img_url):
+        ret = self.DownloadImage(image_url=img_url)
+        if ret:
+            return self.checkImage(image_steam=ret)
+        else:
+            return ret
 
 
-def get_equal_rate(web1, mysql1):
+imageCheck = ImageCheck()
+
+
+def getEqualRate(web1, mysql1):
     """
     比较两个字符串的相似程度
     Args:

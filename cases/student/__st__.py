@@ -5,17 +5,17 @@
 # @Tool      :PyCharm
 from hytest import *
 from lib.loginTs import login_1
-from lib.VerificationCode import ver_code
-from config.config import browser_driver
+from lib.VerificationCode import verfCode
+from config.config import BrowserDriver
 
 
 def suite_setup():
     INFO('套件目录初始化')
     STEP(1, '系统验证')
-    ver_code.license()
+    verfCode.license()
     STEP(2, '打开浏览器')
     print('PAPER1')
-    GSTORE['driver1'] = login_1.open_browser(browser_driver.student_browser)
+    GSTORE['driver1'] = login_1.open_browser(BrowserDriver.student_browser)
 
 
 def suite_teardown():

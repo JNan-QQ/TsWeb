@@ -5,10 +5,11 @@
 # @Tool      :PyCharm
 import os
 import requests
+from config.config import LibConfig
 
-
-class yzm:
+class YZM:
     file_path = fr"{os.path.expanduser('~')}/.jiangnan/license.jn"
+    host = LibConfig.verificationHost
 
     # 激活系统
     def activation(self):
@@ -17,7 +18,7 @@ class yzm:
         with open(self.file_path, 'w', encoding='utf8') as f:
             f.write(f'{name}||{tokens}')
 
-        response = requests.get(fr'http://104.41.177.149/tokens?action=check&name={name}&token={tokens}')
+        response = requests.get(fr'{self.host}/tokens?action=check&name={name}&token={tokens}')
         res = response.json()
         if res['ret'] == 0:
             print('激活成功')
@@ -34,7 +35,7 @@ class yzm:
             str1 = f.read()
         name = str1.split('||')[0]
         token = str1.split('||')[1]
-        response = requests.get(fr'http://104.41.177.149/tokens?action=check&name={name}&token={token}')
+        response = requests.get(fr'{self.host}/tokens?action=check&name={name}&token={token}')
         res = response.json()
         if res['ret'] == 0:
             print('验证成功')
@@ -43,8 +44,8 @@ class yzm:
             print('验证失败', res)
             return False
 
-    def add_license(self, name, tokens, type1):
-        response = requests.post('http://104.41.177.149/tokens', json={
+    def addLicense(self, name, tokens, type1):
+        response = requests.post(fr'{self.host}/tokens', json={
             'action': 'add',
             'name': name,
             'token': tokens,
@@ -54,4 +55,4 @@ class yzm:
         return res
 
 
-ver_code = yzm()
+verfCode = YZM()

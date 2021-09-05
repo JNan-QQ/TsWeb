@@ -5,11 +5,11 @@
 # @Tool      :PyCharm
 
 import xlrd
-from config.config import cases_config
+from config.config import CasesConfig
 
 
 def read_excel_homework():
-    book = xlrd.open_workbook(cases_config.cases_path)
+    book = xlrd.open_workbook(CasesConfig.cases_path)
     # 获取名为cases的表单对象
     sheet = book.sheet_by_name('cases_homework')
     # 行数
@@ -51,7 +51,7 @@ def read_excel_homework():
 
 
 def read_excel_paper():
-    book = xlrd.open_workbook(cases_config.cases_path)
+    book = xlrd.open_workbook(CasesConfig.cases_path)
     # 获取名为cases的表单对象
     sheet = book.sheet_by_name('cases_paper')
     # 行数

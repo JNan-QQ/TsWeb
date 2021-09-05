@@ -10,15 +10,15 @@ from selenium import webdriver
 # 导入Select类
 from selenium.webdriver.support.ui import Select
 
-from lib.CheckImgAndVideo import get_equal_rate
+from lib.CheckImgAndVideo import getEqualRate
 from lib.Mysql_Read import mysql_read_alpha
-from lib.check_tools import imaGE
+from lib.CheckImgAndVideo import imageCheck
 
-class do_homework:
+class DoTest:
     options = [chr(i) for i in range(ord("A"), ord("Z") + 1)]
     driver = None
 
-    def ques_handler(self, ques_id, ques_type, elem, driver):
+    def quesHandler(self, ques_id, ques_type, elem, driver):
         self.driver: webdriver.Edge = driver
         row = mysql_read_alpha(f"""select answer_num,question_content from ts_test where id={ques_id}""")
         # print(row)
@@ -87,14 +87,14 @@ class do_homework:
         ques_mysql = re.findall(r'<Qs(.*?)</Qs>', ques, re.S)[0]
         questions_mysql = [i for i in re.findall(r'<p>(.*?)</p>', ques_mysql, re.S) if i]
         ques_web = [i.text for i in elem.find_elements_by_css_selector('.question_p') if i.text]
-        check_question = get_equal_rate(ques_web, questions_mysql)
+        check_question = getEqualRate(ques_web, questions_mysql)
         CHECK_POINT('问题比对', check_question)
 
         # 选项图片（一定有）
         image_mysql = re.findall(r'<img>(.*?)</img>', ques_mysql, re.S)
         image_web = [i.get_attribute('src') for i in elem.find_elements_by_css_selector('img')]
 
-        print([imaGE.run(i) for i in image_web])
+        print([imageCheck.run(i) for i in image_web])
 
         for i in range(len(image_mysql)):
             if image_mysql[i] in image_web[i]:
@@ -106,7 +106,7 @@ class do_homework:
         # 题目音频
         mp3_mysql = re.findall(r'<La>\((.*?)\).*?</La>', ques, re.S)
         mp3_web = [i.get_attribute('data-mp3') for i in elem.find_elements_by_css_selector('.p_Laudio')]
-        check_mp3 = get_equal_rate(mp3_web, mp3_mysql)
+        check_mp3 = getEqualRate(mp3_web, mp3_mysql)
         CHECK_POINT('比对音频', check_mp3)
 
         # 题目答案
@@ -127,7 +127,7 @@ class do_homework:
         for topic in elem.find_elements_by_css_selector('.question_content'):
             ques_web += [i.text for i in topic.find_elements_by_css_selector('.question_p') if i.text]
             ques_web += [re.sub(r'[A-Z]\. ', '', i.text) for i in topic.find_elements_by_css_selector('label')]
-        ret = get_equal_rate(ques_web, ques_mysql)
+        ret = getEqualRate(ques_web, ques_mysql)
         CHECK_POINT('对比题目、选项', ret)
 
         # 音频
@@ -160,7 +160,7 @@ class do_homework:
         # 选项
         option_mysql = re.findall('<Opt><T><p>(.*?)</p></T></Opt>', ques, re.S)
         option_web = [re.sub(r'[A-Z]\. ', '', i.text) for i in elem.find_elements_by_css_selector('label')]
-        ret = get_equal_rate(option_web, option_mysql)
+        ret = getEqualRate(option_web, option_mysql)
         CHECK_POINT('题目选项比对', ret)
 
         # 题目音频
@@ -183,7 +183,7 @@ class do_homework:
                       in re.findall(r'<p>(.*?)</p>', ques, re.S) if i]
         ques_web = [i.text for i in elem.find_elements_by_css_selector('.question_content p') if
                     ((i.text != ' ') and i.text)]
-        ret = get_equal_rate(ques_web, ques_mysql)
+        ret = getEqualRate(ques_web, ques_mysql)
         CHECK_POINT('比对题目原文', ret)
 
         # 音频
@@ -214,7 +214,7 @@ class do_homework:
                         i.text]
             ques_web = [re.sub(r'[0-9]\.  ', '', i) for i in ques_web[0].split('\n')]
             # print(ques_web)
-            ret = get_equal_rate(ques_web, ques_mysql)
+            ret = getEqualRate(ques_web, ques_mysql)
             CHECK_POINT('对比题目', ret)
 
         # 图片
@@ -248,7 +248,7 @@ class do_homework:
             # if elem.find_element_by_css_selector('span>p').text.startswith('II．'):
             #     ques_web.insert(0, elem.find_element_by_css_selector('span>p').text)
             # /////////////////////////////////
-            ret = get_equal_rate(ques_web, ques_mysql)
+            ret = getEqualRate(ques_web, ques_mysql)
             CHECK_POINT('对比题目', ret)
 
         # 图片
@@ -286,7 +286,7 @@ class do_homework:
         first_text_web = [i.text for i in elem.find_elements_by_css_selector('.first_text .question_text p') if i.text]
         if first_text_web:
             first_text_mysql = re.findall(r'<p>(.*?)</p>', ques, re.S)
-            ret = get_equal_rate(first_text_web, first_text_mysql)
+            ret = getEqualRate(first_text_web, first_text_mysql)
             CHECK_POINT('对比前文', ret)
 
         # 选项题目
@@ -336,7 +336,7 @@ class do_homework:
         ques_mysql = [re.sub(r'<Blk>.*?</Blk>', '', i).replace('<p>', '') for i in
                       re.findall(r'<T><p>(.*?)</p></T>', ques, re.S) if '<img>' not in i]
         ques_web = [i.text for i in elem.find_elements_by_css_selector('.question_p')]
-        ret = get_equal_rate(ques_web, ques_mysql)
+        ret = getEqualRate(ques_web, ques_mysql)
         CHECK_POINT('对比题目', ret)
 
         right_answer = re.findall(r'As="(.*?)"', ques, re.S)
@@ -363,7 +363,7 @@ class do_homework:
         ques_web += [re.sub(r'[A-Z]\. ', '', i.text) for i in elem.find_elements_by_css_selector('.space_space_option')
                      if i.text]
         ques_web = [i for i in ques_web if i != '']
-        ret = get_equal_rate(ques_web, ques_mysql)
+        ret = getEqualRate(ques_web, ques_mysql)
         CHECK_POINT('对比题目、选项', ret)
 
         # 图片
@@ -398,7 +398,7 @@ class do_homework:
         ques_mysql = [re.sub(r'<Blk>.*?</Blk>', '', i).replace('<U>', '').replace('</U>', '') for i in
                       re.findall(r'<p>(.*?)</p>', ques, re.S)]
         ques_web = [i.text for i in elem.find_elements_by_css_selector('.question_p')]
-        ret = get_equal_rate(ques_web, ques_mysql)
+        ret = getEqualRate(ques_web, ques_mysql)
         # print(ques_web,ques_mysql)
         CHECK_POINT('对比题目', ret)
 
@@ -413,7 +413,7 @@ class do_homework:
         # 题目
         ques_mysql = [re.sub(r'<Blk>.*?</Blk>', '', i) for i in re.findall(r'<p>(.*?)</p>', ques, re.S)]
         ques_web = [i.text for i in elem.find_elements_by_css_selector('.question_p')]
-        ret = get_equal_rate(ques_web, ques_mysql)
+        ret = getEqualRate(ques_web, ques_mysql)
         CHECK_POINT('对比题目', ret)
 
         right_answer = re.findall(r'As="(.*?)"', ques, re.S)[0].replace('#', '').split('*')
@@ -439,7 +439,7 @@ class do_homework:
         # 题目
         ques_mysql = re.findall(r'<p><Idx></Idx>(.*?)</p>', ques, re.S)
         ques_web = [i.text for i in elem.find_elements_by_css_selector('p.idx')]
-        ret = get_equal_rate(ques_web, ques_mysql)
+        ret = getEqualRate(ques_web, ques_mysql)
         # print(ques_web, ques_mysql)
         CHECK_POINT('比对作文题目', ret)
 
@@ -461,7 +461,7 @@ class do_homework:
         # 题目
         ques_mysql = [i.replace('<Num></Num>', '') for i in re.findall(r'<p><Idx></Idx>(.*?)</p>', ques, re.S)]
         ques_web = [i.text for i in elem.find_elements_by_css_selector('text_content p.idx')]
-        ret = get_equal_rate(ques_web, ques_mysql)
+        ret = getEqualRate(ques_web, ques_mysql)
         CHECK_POINT('比对题目短文内容', ret)
 
         # 图片
@@ -474,7 +474,7 @@ class do_homework:
         options_mysql = re.findall(r'<Opt><T>(.*?)</T></Opt>', ques, re.S)
         options_web = [re.sub(r'[A-Z]\. ', '', i.text) for i in
                        elem.find_elements_by_css_selector('label .space_space_option')]
-        ret = get_equal_rate(options_web, options_mysql)
+        ret = getEqualRate(options_web, options_mysql)
         CHECK_POINT('检查选项内容', ret)
 
         # 答案
@@ -492,7 +492,7 @@ class do_homework:
                      re.findall(r'<p><Idx></Idx>(.*?)</p>', ques, re.S)]
         if txt_mysql:
             txt_web = [i.text for i in elem.find_elements_by_css_selector('text_content p.idx')]
-            ret = get_equal_rate(txt_web, txt_mysql)
+            ret = getEqualRate(txt_web, txt_mysql)
             CHECK_POINT('比对题目短文内容', ret)
 
         # 图片
@@ -509,7 +509,7 @@ class do_homework:
             ques_web += [i.text for i in topic.find_elements_by_css_selector('.question_p')]
             ques_web += [re.sub(r'[A-Z]\. ', '', i.text) for i in
                          topic.find_elements_by_css_selector('label .space_space_option')]
-        ret = get_equal_rate(ques_web, ques_mysql)
+        ret = getEqualRate(ques_web, ques_mysql)
         CHECK_POINT('比对题目、选项', ret)
 
         right_answer = re.findall(r'As="(.*?)"', ques, re.S)
@@ -527,7 +527,7 @@ class do_homework:
         ques_mysql = [i for i in ques_mysql if i]
         ques_web = [i.text for i in elem.find_elements_by_css_selector('.first_text .question_text p') if i.text]
         if ques_web and ques_mysql:
-            ret = get_equal_rate(ques_web, ques_mysql)
+            ret = getEqualRate(ques_web, ques_mysql)
             CHECK_POINT('对比题目', ret)
 
         right_answer1 = re.findall(r'As="(.*?)"', ques, re.S)
@@ -565,7 +565,7 @@ class do_homework:
         ques_mysql = [i for i in re.findall(r'<Sr>(.*?)</Sr>', ques, re.S) if i]
         if ques_mysql:
             ques_web = [i.get_attribute('innerText') for i in elem.find_elements_by_css_selector('.question_li span')]
-            ret = get_equal_rate(ques_web, ques_mysql)
+            ret = getEqualRate(ques_web, ques_mysql)
             CHECK_POINT('对比题目', ret)
 
         # 音频
@@ -594,7 +594,7 @@ class do_homework:
         if ques_mysql:
             ques_web = [i.get_attribute('data-text') for i in
                         elem.find_elements_by_css_selector('.question_li span')]
-            ret = get_equal_rate(ques_web, ques_mysql)
+            ret = getEqualRate(ques_web, ques_mysql)
             CHECK_POINT('对比题目', ret)
 
         # 音频
@@ -624,7 +624,7 @@ class do_homework:
                       re.findall(r'<T><p>(.*?)</p></T>', ques, re.S) if ('<img>' not in i) and ('<p>' not in i)]
         ques_mysql = [i for i in ques_mysql if i]
         ques_web = [i.text for i in elem.find_elements_by_css_selector('.first_text .question_text p') if i.text]
-        ret = get_equal_rate(ques_web, ques_mysql)
+        ret = getEqualRate(ques_web, ques_mysql)
         CHECK_POINT('对比题目', ret)
 
         # 图片
@@ -651,7 +651,7 @@ class do_homework:
         if ques_mysql:
             ques_web = [i.get_attribute('innerText') for i in elem.find_elements_by_css_selector('.question_li div')]
             ques_web = [re.sub(r'[12]\.', '', re.sub(r'answer:', '', i)) for i in ques_web]
-            ret = get_equal_rate(ques_web, ques_mysql)
+            ret = getEqualRate(ques_web, ques_mysql)
             CHECK_POINT('对比问题', ret)
 
         # 音频
@@ -668,7 +668,7 @@ class do_homework:
         self.driver.execute_script("$(arguments[0]).click()", btn_play)
 
 
-student_do_homework = do_homework()
+student_do_homework = DoTest()
 
 if __name__ == "__main__":
-    print(do_homework().ques_handler('1440000201', 1700, '', ''))
+    print(DoTest().quesHandler('1440000201', 1700, '', ''))

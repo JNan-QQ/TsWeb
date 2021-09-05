@@ -4,15 +4,17 @@
 # @Author    :姜楠
 # @Tool      :PyCharm
 import MySQLdb
+from config.config import LibConfig
 
 
 def mysql_read_alpha(sql):
+    conf = LibConfig.mysqlAplha
     # 创建一个 Connection 对象，代表了一个数据库连接
     connection = MySQLdb.connect(
 
-        host="192.168.1.186",  # 数据库IP地址
-        user="ts_waiyutong",  # mysql用户名
-        passwd="Ts*#!@#123WYT",  # mysql用户登录密码
+        host=conf[0],  # 数据库IP地址
+        user=conf[1],  # mysql用户名
+        passwd=conf[2],  # mysql用户登录密码
         db="tswaiyutong_beta",  # 数据库名
         # 如果数据库里面的文本是utf8编码的，
         # charset指定是utf8
@@ -35,13 +37,14 @@ def mysql_read_alpha(sql):
 
 
 def mysql_read_beta(sql):
+    conf = LibConfig.mysqlBeta
     # 创建一个 Connection 对象，代表了一个数据库连接
     connection = MySQLdb.connect(
 
-        host="121.41.116.146",  # 数据库IP地址
+        host=conf[0],  # 数据库IP地址
         port=3307,
-        user="waiyutong_read",  # mysql用户名
-        passwd="Ts123456",  # mysql用户登录密码
+        user=conf[1],  # mysql用户名
+        passwd=conf[2],  # mysql用户登录密码
         db="tswaiyutong",  # 数据库名
         # 如果数据库里面的文本是utf8编码的，
         # charset指定是utf8
@@ -64,13 +67,14 @@ def mysql_read_beta(sql):
 
 
 def paper_to_test(sql):
+    conf = LibConfig.mysqlBeta
     # 创建一个 Connection 对象，代表了一个数据库连接
     connection = MySQLdb.connect(
 
-        host="121.41.116.146",  # 数据库IP地址
+        host=conf[0],  # 数据库IP地址
         port=3307,
-        user="waiyutong_read",  # mysql用户名
-        passwd="Ts123456",  # mysql用户登录密码
+        user=conf[1],  # mysql用户名
+        passwd=conf[2],  # mysql用户登录密码
         db="tswaiyutong",  # 数据库名
         # 如果数据库里面的文本是utf8编码的，
         # charset指定是utf8

@@ -7,7 +7,7 @@
 from time import sleep
 from hytest import *
 from selenium import webdriver
-from config.config import account,url_base
+from config.config import AccountConfig,UrlBase
 
 
 class Login:
@@ -30,7 +30,7 @@ class Login:
     def close_browser(self):
         self.driver.quit()
 
-    def login(self, username, password, url=url_base.rc['login_url']):
+    def login(self, username, password, url=UrlBase.rc['login_url']):
         # 输入网站
         self.driver.get(url)
         # 输入用户名与密码

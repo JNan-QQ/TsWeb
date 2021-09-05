@@ -9,7 +9,7 @@ from hytest import *
 from lib.HomeWork import teacher_operate, del_paper, student_Do_homework
 from lib.loginTs import login, login_1
 from lib.ReadExcel import read_excel_homework
-from config.config import account, browser_driver, url_base
+from config.config import AccountConfig, BrowserDriver, UrlBase
 
 
 def make_ddt():
@@ -26,12 +26,12 @@ def make_ddt():
 def suite_setup():
     INFO('发布作业用例文件初始化')
     STEP(1, '老师登录')
-    login.login(account.teacher['rc']['teacher_username'], account.teacher['rc']['teacher_password'],
-                url_base.rc['login_url'])
+    login.login(AccountConfig.teacher['rc']['teacher_username'], AccountConfig.teacher['rc']['teacher_password'],
+                UrlBase.rc['login_url'])
     sleep(0.5)
     STEP(2, '学生登录')
-    login_1.login(account.student['rc']['student_username'], account.student['rc']['student_password'],
-                  url_base.rc['login_url'])
+    login_1.login(AccountConfig.student['rc']['student_username'], AccountConfig.student['rc']['student_password'],
+                  UrlBase.rc['login_url'])
     sleep(0.5)
 
 
@@ -53,7 +53,7 @@ class Teacher_operate:
 
         STEP(1, '进入作业模块')
         INFO(teacher_operate.mode_list1[mode - 1])
-        ret = teacher_operate.get_homework_page(GSTORE['driver'], mode)
+        ret = teacher_operate.getHomeworkPage(GSTORE['driver'], mode)
         CHECK_POINT('进入作业模块成功', ret)
         sleep(0.5)
 
@@ -104,7 +104,7 @@ class Teacher_operate:
                 pass
 
     def teardown(self):
-        del_paper.get_homework_page(GSTORE['driver'])
+        del_paper.getHomeworkPage(GSTORE['driver'])
         del_paper.del_homework(self.homework_name)
 
 

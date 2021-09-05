@@ -10,11 +10,11 @@ from lib.doQuestions import student_do_homework
 from lib.loginTs import login
 
 
-class Teacher_send_homework:
+class TeacherSendHomework:
     mode_list1 = ['单个作业', '批量作业']
 
     # 进入作业模块
-    def get_homework_page(self, driver, mode=1):
+    def getHomeworkPage(self, driver, mode=1):
         mode_list = ['newHomework', 'newMultipleHomework']
         self.driver = driver
         # 进入单个作业或批量作业页面
@@ -144,13 +144,13 @@ class Teacher_send_homework:
                 pass
 
     def run(self, args):
-        self.get_homework_page(int(args[0]))
+        self.getHomeworkPage(int(args[0]))
         self.one_homework_pz(args[1], args[2], args[3], args[4])
         self.chiose_paper(args[4], args[5])
         self.send_homework(args[6], args[7])
 
 
-teacher_operate = Teacher_send_homework()
+teacher_operate = TeacherSendHomework()
 
 
 class del_homework:
@@ -229,7 +229,7 @@ class Student_do_homework:
             ques_type = ques.get_attribute('data-type')
             INFO(f'进行第{n}题试题作答、判断')
             try:
-                ret = student_do_homework.ques_handler(ques_id, ques_type, ques, self.driver)
+                ret = student_do_homework.quesHandler(ques_id, ques_type, ques, self.driver)
                 ques_check_list.append(ret)
             except:
                 pass
