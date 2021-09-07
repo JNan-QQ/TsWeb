@@ -14,6 +14,7 @@ from lib.CheckImgAndVideo import getEqualRate
 from lib.Mysql_Read import mysql_read_alpha
 from lib.CheckImgAndVideo import imageCheck
 
+
 class DoTest:
     options = [chr(i) for i in range(ord("A"), ord("Z") + 1)]
     driver = None
