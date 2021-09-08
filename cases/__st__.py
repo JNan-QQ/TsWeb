@@ -7,6 +7,25 @@ from hytest import *
 from config.config import CasesConfig
 import win32com.client
 import xlrd
+from hytest import *
+from lib.loginTs import login_1
+from lib.VerificationCode import verfCode
+from config.config import BrowserDriver
+
+
+def suite_setup():
+    INFO('套件目录初始化')
+    STEP(1, '系统验证')
+    verfCode.license()
+    STEP(2, '打开浏览器')
+    print('PAPER1')
+    GSTORE['driver1'] = login_1.open_browser(BrowserDriver.student_browser)
+
+
+def suite_teardown():
+    INFO('套件目录清除')
+    STEP(1, '关闭浏览器')
+    login_1.close_browser()
 
 
 class MySignalHandler:

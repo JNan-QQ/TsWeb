@@ -4,7 +4,6 @@
 # @Author    :姜楠
 # @Tool      :PyCharm
 from time import sleep
-from selenium import webdriver
 from hytest import *
 from lib.exam_paper import studentExam
 from lib.loginTs import login_1
@@ -26,8 +25,9 @@ def make_ddt():
 def suite_setup():
     INFO('发布作业用例文件初始化')
     STEP(1, '学生登录')
-    login_1.login(AccountConfig.student['rc']['student_username'], AccountConfig.student['rc']['student_password'],
-                  UrlBase.rc['login_url'])
+    login_1.login(AccountConfig.student['alpha']['student_username'],
+                  AccountConfig.student['alpha']['student_password'],
+                  UrlBase.alpha['login_url'])
     sleep(0.5)
 
 
@@ -41,17 +41,17 @@ class Test_:
     # ddt_cases 里面每个字典元素 定义一个用例的数据
     # 其中： name是该用例的名称， para是用例的参数
     ddt_cases = make_ddt()
-    tags = ['冒烟测试', 'UI测试', '试卷', 'rc']
+    tags = ['alpha']
 
     def teststeps(self):
-        mode, grade, paper_name = self.para
+        mode, grade, paper_name, paper_unit = self.para
 
         STEP(1, f'进入{studentExam.mode_name[mode - 1]}页面')
-        ret = studentExam.getExamPage(GSTORE['driver1'], mode, UrlBase.rc['mode_url'][mode - 1])
+        ret = studentExam.getExamPage(GSTORE['driver1'], mode, UrlBase.alpha['mode_url'][mode - 1])
         CHECK_POINT('进入指定界面', ret)
 
-        STEP(2, f'选择年级{grade}')
-        ret = studentExam.choiseGrade(grade)
+        STEP(2, f'选择年级：{grade}|班级：{paper_unit}')
+        ret = studentExam.choseGrade(grade, paper_unit)
         CHECK_POINT('选择正确年级', ret)
 
         STEP(3, f'查找试卷 {paper_name}')

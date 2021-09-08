@@ -13,8 +13,8 @@ from lib.loginTs import login
 
 
 class StudentExam:
-    mode_url = UrlBase.rc['mode_url']
-    mode_name = ['人机对话', '笔试考场']
+    mode_url = UrlBase.alpha['mode_url']
+    mode_name = ['人机对话', '笔试考场', '单元测试']
     driver = None
 
     def getExamPage(self, driver, mode=1, url=None):
@@ -27,13 +27,14 @@ class StudentExam:
             self.driver.get(self.mode_url[mode - 1])
 
         try:
+            sleep(0.5)
             self.driver.switch_to.alert.accept()
             sleep(1)
         except:
             sleep(1)
         return True
 
-    def choiseGrade(self, grade):
+    def choseGrade(self, grade, unit):
         grades = {
             '6A': '六年级上',
             '6B': '六年级下',
@@ -54,6 +55,7 @@ class StudentExam:
             '12B': '高三第二学期',
             '12C': '必修第三册',
         }
+        # 选择年级
         select = Select(
             self.driver.find_element_by_css_selector('.book_unit_select_cnt .book_unit_select.current .book_select'))
         # 通过 Select 对象选中
@@ -61,16 +63,30 @@ class StudentExam:
         select.select_by_visible_text(grades[grade])
         sleep(0.5)
 
+        # 选择单元
+        if unit:
+            select_unit = Select(
+                self.driver.find_element_by_css_selector(
+                    '.book_unit_select_cnt .book_unit_select.current .unit_cnt.current .unit_select'))
+            select_unit.select_by_visible_text(unit)
+            sleep(0.5)
+
         return True
 
     def chosePaper(self, paper_name, mode):
-        list1 = ['.rjdh_paper_title', '.bishi_paper_title']
+        list1 = ['.rjdh_paper_title', '.bishi_paper_title', '.unit_paper_title']
         while True:
             flg = False
-            papers = self.driver.find_elements_by_css_selector('.list_container')
-            for i in papers:
+            if mode == 3:  # 单元练习
+                papers = self.driver.find_elements_by_css_selector('.unit_paper')
+            else:
+                papers = self.driver.find_elements_by_css_selector('.list_container')
+            for i in papers:  # 人机对话、笔试考场
                 if paper_name == i.find_element_by_css_selector(list1[mode - 1]).text:
-                    i.find_element_by_css_selector('.remain_status_btn a:nth-child(1)').click()
+                    if mode == 3:  # 单元练习
+                        i.find_element_by_css_selector('.unit_paper_button_box a:nth-child(1)').click()
+                    else:  # 人机对话、笔试考场
+                        i.find_element_by_css_selector('.remain_status_btn a:nth-child(1)').click()
                     flg = True
                     break
             if flg:
@@ -78,7 +94,7 @@ class StudentExam:
             else:
                 btn = self.driver.find_element_by_css_selector('a.next')
                 self.driver.execute_script("$(arguments[0]).click()", btn)
-                sleep(3)
+                sleep(2)
 
         return True
 
@@ -132,21 +148,32 @@ class StudentExam:
         #     except:
         #         sleep(5)
 
+        sleep(0.5)
+        # 点击提交按钮
         self.driver.find_element_by_css_selector('.p_answerSubmit_btn').click()
-        sleep(1)
+        sleep(0.5)
+        # 确认提交
         self.driver.find_element_by_css_selector('.ui-dialog-buttonset button:nth-child(2)').click()
         sleep(0.5)
-        n = 0
+        # 判断录音是否判断完成,提交完成
+        save_n = 0
+        mp3_n = 0
         while True:
-            if self.driver.find_element_by_css_selector('.message-info').text == '记录保存成功':
+            msg_info = self.driver.find_element_by_css_selector('.message-info')
+            if msg_info.text == '目前有音频未识别，请等待判分。':
+                mp3_n += 1
+                if mp3_n == 20:
+                    CHECK_POINT('录音判分成功', False)
+                    break
+            elif msg_info.text == '记录保存成功':
                 self.driver.find_element_by_css_selector('.ui-button-text').click()
                 break
             else:
+                save_n += 1
                 sleep(1)
-                if n == 10:
-                    #
-                    break
-                n += 1
+            if save_n > 10:
+                CHECK_POINT('作业提交失败', False)
+                break
 
         return True
 
@@ -167,6 +194,6 @@ if __name__ == "__main__":
     login.open_browser(BrowserDriver.student_browser)
     login.login(username='waiyan', password='123456lj', url=UrlBase.rc['login_url'])
     studentExam.getExamPage(login.driver)
-    studentExam.choiseGrade('9A')
+    studentExam.choseGrade('9A')
     studentExam.chosePaper('江苏省9AU01人机对话单元卷01', 1)
     studentExam.doPaper('江苏省9AU01人机对话单元卷01')

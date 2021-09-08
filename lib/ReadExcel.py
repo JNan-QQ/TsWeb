@@ -64,7 +64,9 @@ def read_excel_paper():
 
         paper_name = sheet.cell_value(rowx=i, colx=3)
 
-        cases_dict[sheet.cell_value(rowx=i, colx=0)] = [int(mode), grade, paper_name]
+        paper_unit = sheet.cell_value(rowx=i, colx=4)
+
+        cases_dict[sheet.cell_value(rowx=i, colx=0)] = [int(mode), grade, paper_name,paper_unit]
 
     return cases_dict
 
