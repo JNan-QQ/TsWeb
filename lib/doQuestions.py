@@ -9,10 +9,114 @@ from hytest import *
 from selenium import webdriver
 # 导入Select类
 from selenium.webdriver.support.ui import Select
-
 from lib.CheckImgAndVideo import getEqualRate
 from lib.Mysql_Read import mysql_read_alpha
 from lib.CheckImgAndVideo import imageCheck
+
+try:
+    import xml.etree.cElementTree as eT
+except ImportError:
+    import xml.etree.ElementTree as eT
+
+
+def mysql_content_format(xml_str):
+    xml_str = f'<tml>{xml_str}</tml>'
+    root = eT.fromstring(xml_str)
+    print(root)
+
+    # 提取图片 - web: tag = img
+    image = [i.text for i in root.iter('img')]
+
+    # 提取前文 - web: class = idx
+    idx_text_first = [i.tail for i in root.findall('./T/p/Idx') if i.tail]
+
+    # 提取标题类型 - web: class=Mid
+    mid_text = [i.text for i in root.findall('./T/p/Mid') if i.text]
+
+    # 提取小题 - web: class = question_content
+    qs = root.findall('./Qs')
+
+    question = []
+    for q_q in qs:
+        # 提取内文 - web: class = idx
+        idx_text_mid = [i.tail for i in q_q.findall('./T/p/Idx') if i.tail]
+        if idx_text_mid:
+            idx_text_first = idx_text_mid
+        # 格式化答案
+        answer = [i for i in q_q.attrib['As'].replace('#', '').split('*') if i]
+
+        # 提取小题题目 - web: class = question_p
+        ques = [i.text for i in q_q.findall('./T/p') if i.text]
+        # 提取小题选项 - web: class = label
+        opt = [i.text for i in q_q.findall('./Opt/T/p') if i.text]
+
+        question.append([ques, opt, answer])
+
+    mp3 = [i.text for i in root.findall('./La')]
+
+    print(image, mid_text, idx_text_first, question, mp3)
+    return [image, mid_text, idx_text_first, question, mp3]
+
+
+def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, ques_type):
+    if mysql_connect[0]:
+        images_web = [i.get_attribute('src') for i in elem.find_elements_by_css_selector('img')]
+        CHECK_POINT('对比题目中的图片名字相同', imageCheck.check_name())
+
+        img_request = [imageCheck.run(i) for i in images_web]
+        CHECK_POINT('各图片链接访问是否成功,图片是否完整', False not in img_request)
+
+    if mysql_connect[1]:
+        mid_web = [i.text for i in elem.find_elements_by_css_selector('.Mid') if i.text]
+        CHECK_POINT('对比题目标题是否相同', getEqualRate(mid_web, mysql_connect[1]))
+
+    if mysql_connect[2]:
+        idx_web = [i.text for i in elem.find_elements_by_css_selector('.idx') if i.text]
+        CHECK_POINT('对比题目短文是否相同', getEqualRate(idx_web, mysql_connect[2]))
+
+    if mysql_connect[3]:
+        ques_mysql_list = mysql_connect[3]
+        ques_web_list = elem.find_elements_by_css_selector('.question_content')
+        CHECK_POINT(f'小题数量对比 web:{len(ques_web_list)},mysql:{len(ques_mysql_list)}',
+                    len(ques_web_list) == len(ques_mysql_list))
+
+        for ii in range(len(ques_web_list)):
+            INFO(f'开始对比该大题的第 {ii + 1} 小问')
+
+            if ques_mysql_list[0]:
+                ques = [i.text for i in ques_web_list[ii].find_elements_by_css_selector('.question_p') if i.text]
+                CHECK_POINT('对比该小问问题内容', getEqualRate(ques, ques_mysql_list[0]))
+
+            if ques_mysql_list[1]:
+                opt = [re.sub(r'[A-Z]\. ', '', i.text) for i in ques_web_list[ii].find_elements_by_css_selector('label')
+                       if i.text]
+                CHECK_POINT('对比该小问选项内容', getEqualRate(opt, ques_mysql_list[1]))
+
+            if ques_mysql_list[2]:
+                # 单项选择
+                if ques_type in ['1100', '1200', '1300', '2200']:
+                    opt_btn = ques_web_list[ii].find_element_by_css_selector(
+                        f'label:nth-of-type({ques_mysql_list[2][0]}) input')
+                    driver.execute_script("$(arguments[0]).click()", opt_btn)
+
+                # 填空
+                elif ques_type in []:
+                    sends_input = elem.find_elements_by_css_selector('input')
+                    for iii in range(len(ques_mysql_list[2])):
+                        sends_input[iii].send_keys(ques_mysql_list[2][iii])
+
+
+def main_handler(ques_id, ques_type, driver, elem):
+    content = mysql_read_alpha(f"""select question_content from ts_test where id={ques_id}""")[0]
+    INFO(f'作业id是{ques_id}')
+
+    print(content)
+
+    # 格式化数据库代码
+    mysql_connect = mysql_content_format(content)
+    web_check(elem, driver, mysql_connect, ques_type)
+
+    # return getattr(student_do_homework, f'type_{ques_type}')(content, driver, test_num)
 
 
 class DoTest:
@@ -672,4 +776,4 @@ class DoTest:
 student_do_homework = DoTest()
 
 if __name__ == "__main__":
-    print(DoTest().quesHandler('1440000201', 1700, '', ''))
+    print(DoTest().quesHandler('140016117', 1700, '', ''))

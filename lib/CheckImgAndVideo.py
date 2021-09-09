@@ -49,6 +49,12 @@ class ImageCheck:
         else:
             return False
 
+    def check_name(self, web_, mysql_):
+        for i in range(len(web_)):
+            if mysql_[i] not in web_[i]:
+                return False
+        return True
+
     def run(self, img_url):
         ret = self.DownloadImage(image_url=img_url)
         if ret:
