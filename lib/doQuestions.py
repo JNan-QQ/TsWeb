@@ -313,7 +313,7 @@ class DoTest:
             # 创建Select对象
             select = Select(sends_input[i].find_element_by_tag_name('select'))
 
-            # 通过 Select 对象选中小雷老师
+            # 通过 Select 对象选中
             select.select_by_index(right_answer[i])
 
         # 音频
@@ -519,6 +519,35 @@ class DoTest:
             chil = sends_input[i].find_element_by_css_selector(f'label:nth-of-type({right_answer[i]})')
             self.driver.execute_script("$(arguments[0]).click()", chil)
 
+    # 补全对话
+    def type_3000(self, content, elem):
+        ques = content[1]
+        # 题目
+        ques_mysql = [re.sub(r'<Cob t=".*?"></Cob>', '', i).replace('(<Num></Num>)', '') for i in
+                      re.findall(r'<p>(.*?)</p>', ques, re.S) if '<img>' not in i]
+        ques_mysql = [i for i in ques_mysql if i]
+        ques_web = [re.sub(r'\(\d+\)', '', i.text) for i in
+                    elem.find_elements_by_css_selector('.first_text .question_text p') if i.text]
+        if ques_web and ques_mysql:
+            ret = getEqualRate(ques_web, ques_mysql)
+            CHECK_POINT('对比题目', ret)
+
+        # 图片
+        image_mysql = re.findall(r'<img>(.*?)</img>', ques, re.S)
+        if image_mysql:
+            image_web = [i.get_attribute('src') for i in elem.find_elements_by_css_selector('img')]
+            CHECK_POINT('对比图片', image_mysql[0] in image_web[0])
+
+        # 答案
+        right_answer = re.findall(r'As="(.*?)"', ques, re.S)
+        sends_input = elem.find_elements_by_css_selector('.question_p')
+        for i in range(len(right_answer)):
+            # 创建Select对象
+            select = Select(sends_input[i].find_element_by_tag_name('select'))
+
+            # 通过 Select 对象选中小雷老师
+            select.select_by_index(right_answer[i])
+
     #
     def type_7300(self, content, elem):
         ques = content[1]
@@ -526,7 +555,7 @@ class DoTest:
         ques_mysql = [re.sub(r'<Blk>.*?</Blk>', '', i).replace('<p>', '') for i in
                       re.findall(r'<p>(.*?)</p>', ques, re.S) if '<img>' not in i]
         ques_mysql = [i for i in ques_mysql if i]
-        ques_web = [i.text for i in elem.find_elements_by_css_selector('.first_text .question_text p') if i.text]
+        ques_web = [i.text for i in elem.find_elements_by_css_selector('.first_text .text_content p') if i.text]
         if ques_web and ques_mysql:
             ret = getEqualRate(ques_web, ques_mysql)
             CHECK_POINT('对比题目', ret)
@@ -672,4 +701,4 @@ class DoTest:
 student_do_homework = DoTest()
 
 if __name__ == "__main__":
-    print(DoTest().quesHandler('1440000201', 1700, '', ''))
+    print(DoTest().quesHandler('300001189', 1700, '', ''))
