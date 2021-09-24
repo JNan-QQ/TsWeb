@@ -56,6 +56,13 @@ class ImageCheck:
         else:
             return ret
 
+    def check_name(self, web_img, mysql_img):
+        web_img = [i.split('/')[-1] for i in web_img]
+        for i in mysql_img:
+            if i not in web_img:
+                return False
+        return True
+
 
 imageCheck = ImageCheck()
 

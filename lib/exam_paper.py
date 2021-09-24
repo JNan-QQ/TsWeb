@@ -6,7 +6,7 @@
 from time import sleep
 from hytest import *
 from selenium import webdriver
-from lib.doQuestions import student_do_homework
+from lib.doQuestions import main_handler
 from selenium.webdriver.support.ui import Select
 from config.config import UrlBase
 from lib.loginTs import login
@@ -132,7 +132,8 @@ class StudentExam:
             ques_type = ques.get_attribute('data-type')
             INFO(f'进行第{n}题试题作答、判断')
             try:
-                student_do_homework.quesHandler(ques_id, ques_type, ques, self.driver)
+                # student_do_homework.quesHandler(ques_id, ques_type, ques, self.driver)
+                main_handler(ques_id, ques_type, self.driver, ques)
                 print(f'第{n}题试题作答、判断完成！！！')
             except:
                 # SELENIUM_LOG_SCREEN(self.driver, width='70%')
@@ -195,7 +196,7 @@ if __name__ == "__main__":
 
     login.open_browser(BrowserDriver.student_browser)
     login.login(username='waiyan', password='123456lj', url=UrlBase.alpha['login_url'])
-    studentExam.getExamPage(login.driver, mode=2)
-    studentExam.choseGrade('7A', 0)
-    studentExam.chosePaper('海南州7AUnit 3单元检测卷01', 2)
-    studentExam.doPaper('海南州7AUnit 3单元检测卷01')
+    studentExam.getExamPage(login.driver, mode=1)
+    studentExam.choseGrade('8A', 0)
+    studentExam.chosePaper('(新)海北州8AU1人机对话单元卷01', 1)
+    studentExam.doPaper('(新)海北州8AU1人机对话单元卷01')
