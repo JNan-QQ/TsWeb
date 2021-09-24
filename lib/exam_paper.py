@@ -121,6 +121,7 @@ class StudentExam:
                 except:
                     if flg_err:
                         return False
+        sleep(1)
         ques_list = self.driver.find_elements_by_css_selector('.test_content')
         if not ques_list:
             SELENIUM_LOG_SCREEN(self.driver, width='70%')
@@ -135,6 +136,7 @@ class StudentExam:
                 print(f'第{n}题试题作答、判断完成！！！')
             except:
                 # SELENIUM_LOG_SCREEN(self.driver, width='70%')
+                print(f'第{n}题试题作答、判断失败？？？')
                 pass
             sleep(0.5)
             n += 1
@@ -192,8 +194,8 @@ if __name__ == "__main__":
     from config.config import BrowserDriver
 
     login.open_browser(BrowserDriver.student_browser)
-    login.login(username='waiyan', password='123456lj', url=UrlBase.rc['login_url'])
-    studentExam.getExamPage(login.driver)
-    studentExam.choseGrade('9A')
-    studentExam.chosePaper('江苏省9AU01人机对话单元卷01', 1)
-    studentExam.doPaper('江苏省9AU01人机对话单元卷01')
+    login.login(username='waiyan', password='123456lj', url=UrlBase.alpha['login_url'])
+    studentExam.getExamPage(login.driver, mode=2)
+    studentExam.choseGrade('8A', 0)
+    studentExam.chosePaper('海南州8A期末检测卷01', 2)
+    studentExam.doPaper('海南州8A期末检测卷01')
