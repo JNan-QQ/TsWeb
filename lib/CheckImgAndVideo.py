@@ -89,14 +89,14 @@ def getEqualRate(web1, mysql1):
             for i in range(len(web1)):
                 if web1[i] in ['—', '— ']:
                     continue
-                else:
-                    ret = difflib.SequenceMatcher(None, web1[i], mysql1[i]).quick_ratio()
-                    if ret < 0.7:
-                        print(web1, '\n', mysql1)
-                        INFO(f'web数据：{web1}\nmysql数据：{mysql1}')
-                        return False
+                ret = difflib.SequenceMatcher(None, web1[i], mysql1[i]).quick_ratio()
+                if ret < 0.7:
+                    print(web1, '\n', mysql1)
+                    INFO(f'web数据：{web1}\nmysql数据：{mysql1}')
+                    return False
             return True
         except:
+            print(web1, '\n', mysql1)
             INFO(f'web数据：{web1}\nmysql数据：{mysql1}')
             return False
 

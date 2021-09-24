@@ -4,7 +4,6 @@
 # @Author    :姜楠
 # @Tool      :PyCharm
 import re
-
 from hytest import *
 from selenium import webdriver
 # 导入Select类
@@ -19,8 +18,29 @@ except ImportError:
     import xml.etree.ElementTree as eT
 
 
+def xml_text(p):
+    c = ''
+    if p.text:
+        c = p.text
+    for i in p.iter():
+        if i.tail:
+            c += i.tail
+    if not c and c.isspace():
+        c = ''
+
+    return c
+
+
+def xml_text1(p):
+    c = ''
+    for i in p.itertext():
+        if i and not i.isspace():
+            c += i
+    return c
+
+
 def mysql_content_format(xml_str):
-    xml_str = f'<tml>{xml_str}</tml>'
+    xml_str = f'<tml>{xml_str}</tml>'.replace('<B><U>', '').replace('</U></B>', '')
     root = eT.fromstring(xml_str)
     # print(root)
 
@@ -28,7 +48,10 @@ def mysql_content_format(xml_str):
     image = [i.text for i in root.findall('.//img')]
 
     # 提取短文 - web: class = idx
-    idx_text = [i.tail for i in root.findall('.//T/p/Idx') if i.tail]
+    idx_text = [xml_text(i) for i in root.findall('.//T/p/Idx/..') if xml_text(i)]
+
+    # 题目短文2
+    idx_text2 = [xml_text(i) for i in root.findall('./T/p') if not i.findall('./Idx') and xml_text(i)]
 
     # 提取标题类型 - web: class=Mid
     mid_text = [i.text for i in root.findall('./T/p/Mid') if i.text]
@@ -42,10 +65,10 @@ def mysql_content_format(xml_str):
         answer = [i for i in q_q.attrib['As'].replace('#', '').split('*') if i]
 
         # 提取小题题目 - web: class = question_p
-        ques = [i.text for i in q_q.findall('./T/p') if i.text and i.text != '\u3000']
+        ques = [xml_text(i) for i in q_q.findall('./T/p') if not i.findall('./Idx')]
         # print(ques)
         # 提取小题选项 - web: class = label
-        opt = [i.text for i in q_q.findall('./Opt/T/p') if i.text]
+        opt = [xml_text1(i) for i in q_q.findall('./Opt/T')]
         ques += opt
         ques = [i for i in ques if i and i != ' ']
 
@@ -57,6 +80,7 @@ def mysql_content_format(xml_str):
         '图片': image,
         '题目短文标题': mid_text,
         '题目短文': idx_text,
+        '题目短文2': idx_text2,
         '题目问题、选项、答案': question,
         '题目音频': mp3,
     }
@@ -80,8 +104,14 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
 
     if mysql_connect['题目短文']:
         print('开始比对短文')
-        idx_web = [i.text for i in elem.find_elements_by_css_selector('.idx , .question_content p') if i.text]
+        idx_web = [i.text for i in elem.find_elements_by_css_selector('p.idx') if i.text]
         CHECK_POINT('对比题目短文是否相同', getEqualRate(idx_web, mysql_connect['题目短文']))
+
+    if mysql_connect['题目短文2']:
+        print('开始比对短文2')
+        idx_web = [re.sub(r'\(\d+\)', '()', i.text) for i in elem.find_elements_by_css_selector('.text_content p') if
+                   i.text]
+        CHECK_POINT('对比题目短文2是否相同', getEqualRate(idx_web, mysql_connect['题目短文2']))
 
     if mysql_connect['题目音频']:
         print('开始比对短文音频')
@@ -96,7 +126,7 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
         # print('音频暂不比对')
 
     if mysql_connect['题目问题、选项、答案']:
-        print('题目问题、选项、答案')
+        print('开始--题目问题、选项、答案')
         ques_mysql_list = mysql_connect['题目问题、选项、答案']
         ques_web_list = elem.find_elements_by_css_selector('.question_content')
         CHECK_POINT(f'小题数量对比 web:{len(ques_web_list)},mysql:{len(ques_mysql_list)}',
@@ -107,24 +137,33 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
 
             # 题目选项
             if ques_mysql_list[ii][0]:
+                print('----进入小题题目对比')
                 ques = [i.text for i in ques_web_list[ii].find_elements_by_css_selector('.question_p') if i.text]
-                ques += [re.sub(r'[A-Z]\. |[A-Z]\.', '', i.text) for i in
+                ques += [re.sub(r'[A-D]\. |[A-D]\.', '', i.text) for i in
                          ques_web_list[ii].find_elements_by_css_selector('label') if i.text]
                 CHECK_POINT('对比该小问问题内容', getEqualRate(ques, ques_mysql_list[ii][0]))
 
             # 答案
             if ques_mysql_list[ii][1]:
-                # 单项选择
-                if ques_type in ['1100', '1200', '1300', '2200']:
+                print('----进入小题答案完成')
+                # 单项选择类型
+                if ques_type in ['1100', '1200', '1300', '2200', '2800', '2900']:
                     opt_btn = ques_web_list[ii].find_element_by_css_selector(
                         f'label:nth-of-type({ques_mysql_list[ii][1][0]}) input')
                     driver.execute_script("$(arguments[0]).click()", opt_btn)
 
                 # 填空
-                elif ques_type in []:
-                    sends_input = elem.find_elements_by_css_selector('input')
+                elif ques_type in ['2100', '2600']:
+                    sends_input = ques_web_list[ii].find_elements_by_css_selector('input')
                     for iii in range(len(ques_mysql_list[ii][1])):
                         sends_input[iii].send_keys(ques_mysql_list[ii][1][iii])
+
+                elif ques_type in ['3000']:
+                    select = Select(ques_web_list[ii].find_element_by_css_selector("select"))
+                    select.select_by_index(ques_mysql_list[ii][1][0])
+
+    elif ques_type in ['2700']:
+        elem.find_element_by_css_selector('textarea').send_keys('[cs] [jiangnan] [zdh]')
 
 
 def main_handler(ques_id, ques_type, driver, elem):
@@ -134,9 +173,12 @@ def main_handler(ques_id, ques_type, driver, elem):
     # print(content)
 
     # 格式化数据库代码
+    driver.implicitly_wait(1)
     mysql_connect = mysql_content_format(content)
     web_check(elem, driver, mysql_connect, ques_type)
+    driver.implicitly_wait(5)
 
 
 if __name__ == "__main__":
-    main_handler('120041106', 9999, 0, 6)
+    # main_handler('110007911', 9999, 0, 6)
+    main_handler('280000026', 9999, 0, 6)

@@ -196,7 +196,7 @@ if __name__ == "__main__":
 
     login.open_browser(BrowserDriver.student_browser)
     login.login(username='waiyan', password='123456lj', url=UrlBase.alpha['login_url'])
-    studentExam.getExamPage(login.driver, mode=1)
-    studentExam.choseGrade('8A', 0)
-    studentExam.chosePaper('(新)海北州8AU1人机对话单元卷01', 1)
-    studentExam.doPaper('(新)海北州8AU1人机对话单元卷01')
+    studentExam.getExamPage(login.driver, mode=2)
+    studentExam.choseGrade('7A', 0)
+    studentExam.chosePaper('海北州7AUnit 1单元检测卷01', 2)
+    studentExam.doPaper('(海北州7AUnit 1单元检测卷01')
