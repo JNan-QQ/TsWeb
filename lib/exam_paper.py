@@ -138,7 +138,7 @@ class StudentExam:
                 # SELENIUM_LOG_SCREEN(self.driver, width='70%')
                 print(f'第{n}题试题作答、判断失败？？？')
                 pass
-            sleep(0.5)
+            sleep(0.3)
             n += 1
 
         # 等待音频播放完毕
@@ -196,6 +196,6 @@ if __name__ == "__main__":
     login.open_browser(BrowserDriver.student_browser)
     login.login(username='waiyan', password='123456lj', url=UrlBase.alpha['login_url'])
     studentExam.getExamPage(login.driver, mode=2)
-    studentExam.choseGrade('8A', 0)
-    studentExam.chosePaper('海南州8A期末检测卷01', 2)
-    studentExam.doPaper('海南州8A期末检测卷01')
+    studentExam.choseGrade('7A', 0)
+    studentExam.chosePaper('海南州7AUnit 3单元检测卷01', 2)
+    studentExam.doPaper('海南州7AUnit 3单元检测卷01')

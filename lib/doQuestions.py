@@ -495,7 +495,7 @@ class DoTest:
         txt_mysql = [i.replace('<B>', '').replace('</B>', '') for i in
                      re.findall(r'<p><Idx></Idx>(.*?)</p>', ques, re.S)]
         if txt_mysql:
-            txt_web = [i.text for i in elem.find_elements_by_css_selector('text_content p.idx')]
+            txt_web = [i.text for i in elem.find_elements_by_css_selector('.text_content p.idx')]
             ret = getEqualRate(txt_web, txt_mysql)
             CHECK_POINT('比对题目短文内容', ret)
 
@@ -723,4 +723,4 @@ class DoTest:
 student_do_homework = DoTest()
 
 if __name__ == "__main__":
-    print(DoTest().quesHandler('300000204', 1700, '', ''))
+    print(DoTest().quesHandler('290000952', 1700, '', ''))
