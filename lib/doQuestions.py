@@ -59,12 +59,12 @@ def mysql_content_format(xml_str):
     image = [i.text for i in root.findall('.//img')]
 
     # 提取短文 - web: class = idx
-    idx_text = [xml_text(i) for i in root.findall('.//T/p/Idx/..') if xml_text(i)]
+    idx_text = [xml_text(i) for i in root.findall('.//p/Idx/..') if xml_text(i)]
 
     # 题目短文2
     idx_text2 = [xml_text(i) for i in root.findall('./T/p') if not i.findall('.//Idx') and xml_text(i)]
 
-    idx_text2 += [i.text for i in root.findall('./Led/p') if i.text]
+    idx_text2 += [i.text for i in root.findall('./Led/p') if not i.findall('.//Idx') and i.text]
 
     # 提取标题类型 - web: class=Mid
     mid_text = [i.text for i in root.findall('./T/p/Mid') if i.text]
@@ -123,7 +123,8 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
     if mysql_connect['题目短文2']:
         print('开始比对短文2')
         idx_web2 = [re.sub(r'\(\d+\)', '()', i.text) for i in
-                    elem.find_elements_by_css_selector('.text_content p:not(.idx)') if i.text]
+                    elem.find_elements_by_css_selector('.text_content p:not(.idx) , .text_content p:not(.Mid)') if
+                    i.text]
         idx_web2 = [re.sub(r'__\d+__', '____', i) for i in idx_web2]
         CHECK_POINT('对比题目短文2是否相同', getEqualRate(idx_web2, mysql_connect['题目短文2']))
 
@@ -185,15 +186,15 @@ def main_handler(ques_id, ques_type, driver, elem):
     INFO(f'作业id是{ques_id}')
 
     # 格式化数据库代码
-    driver.implicitly_wait(1)
+    # driver.implicitly_wait(1)
     mysql_connect = mysql_content_format(content)
-    web_check(elem, driver, mysql_connect, ques_type)
-    driver.implicitly_wait(5)
+    # web_check(elem, driver, mysql_connect, ques_type)
+    # driver.implicitly_wait(5)
 
-    # print(content)
-    # print(mysql_connect)
+    print(content)
+    print(mysql_connect)
 
 
 if __name__ == "__main__":
     # main_handler('110007911', 9999, 0, 6)
-    pass
+    main_handler('290000940', 999, 6, 0)

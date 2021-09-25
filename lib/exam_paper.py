@@ -151,7 +151,7 @@ class StudentExam:
         #     except:
         #         sleep(5)
 
-        sleep(0.5)
+        sleep(1)
         # 点击提交按钮
         self.driver.find_element_by_css_selector('.p_answerSubmit_btn').click()
         sleep(0.5)
@@ -161,23 +161,31 @@ class StudentExam:
         # 判断录音是否判断完成,提交完成
         save_n = 0
         mp3_n = 0
+        num_n = 0
         while True:
-            msg_info = self.driver.find_element_by_css_selector('.message-info')
-            if msg_info.text == '目前有音频未识别，请等待判分。':
-                mp3_n += 1
-                if mp3_n == 20:
-                    CHECK_POINT('录音判分成功', False)
+            try:
+                msg_info = self.driver.find_element_by_css_selector('.message-info')
+                if msg_info.text == '目前有音频未识别，请等待判分。':
+                    mp3_n += 1
+                    if mp3_n == 20:
+                        CHECK_POINT('录音判分成功', False)
+                        break
+                elif msg_info.text == '记录保存成功':
+                    self.driver.find_element_by_css_selector('.ui-button-text').click()
                     break
-            elif msg_info.text == '记录保存成功':
-                self.driver.find_element_by_css_selector('.ui-button-text').click()
-                break
-            else:
-                save_n += 1
-                sleep(1)
-            if save_n > 10:
-                CHECK_POINT('作业提交失败', False)
-                break
-
+                else:
+                    save_n += 1
+                    sleep(0.5)
+                if save_n > 10:
+                    CHECK_POINT('作业提交失败', False)
+                    break
+            except:
+                num_n += 1
+                if num_n > 10:
+                    SELENIUM_LOG_SCREEN(self.driver, width='70%')
+                    CHECK_POINT('作业提交失败', False)
+                    break
+                sleep(0.5)
         return True
 
     def checkResult(self):
