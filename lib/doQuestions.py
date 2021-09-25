@@ -18,6 +18,7 @@ except ImportError:
     import xml.etree.ElementTree as eT
 
 
+# 短文
 def xml_text(p):
     c = ''
     if p.text:
@@ -31,16 +32,26 @@ def xml_text(p):
     return c
 
 
+# 选项
 def xml_text1(p):
     c = ''
     for i in p.itertext():
         if i and not i.isspace():
             c += i
+    c = c.replace('\u3000', '')
     return c
 
 
+def replace_xml(p):
+    x = ['B', 'U', 'I']
+    for i in x:
+        p = p.replace(f'<{i}>', '').replace(f'</{i}>', '')
+    return p
+
+
 def mysql_content_format(xml_str):
-    xml_str = f'<tml>{xml_str}</tml>'.replace('<B><U>', '').replace('</U></B>', '')
+    xml_str = f'<tml>{xml_str}</tml>'
+    xml_str = replace_xml(xml_str)
     root = eT.fromstring(xml_str)
     # print(root)
 
@@ -51,7 +62,9 @@ def mysql_content_format(xml_str):
     idx_text = [xml_text(i) for i in root.findall('.//T/p/Idx/..') if xml_text(i)]
 
     # 题目短文2
-    idx_text2 = [xml_text(i) for i in root.findall('./T/p') if not i.findall('./Idx') and xml_text(i)]
+    idx_text2 = [xml_text(i) for i in root.findall('./T/p') if not i.findall('.//Idx') and xml_text(i)]
+
+    idx_text2 += [i.text for i in root.findall('./Led/p') if i.text]
 
     # 提取标题类型 - web: class=Mid
     mid_text = [i.text for i in root.findall('./T/p/Mid') if i.text]
@@ -109,9 +122,10 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
 
     if mysql_connect['题目短文2']:
         print('开始比对短文2')
-        idx_web = [re.sub(r'\(\d+\)', '()', i.text) for i in elem.find_elements_by_css_selector('.text_content p') if
-                   i.text]
-        CHECK_POINT('对比题目短文2是否相同', getEqualRate(idx_web, mysql_connect['题目短文2']))
+        idx_web2 = [re.sub(r'\(\d+\)', '()', i.text) for i in
+                    elem.find_elements_by_css_selector('.text_content p:not(.idx)') if i.text]
+        idx_web2 = [re.sub(r'__\d+__', '____', i) for i in idx_web2]
+        CHECK_POINT('对比题目短文2是否相同', getEqualRate(idx_web2, mysql_connect['题目短文2']))
 
     if mysql_connect['题目音频']:
         print('开始比对短文音频')
@@ -170,15 +184,16 @@ def main_handler(ques_id, ques_type, driver, elem):
     content = mysql_read_alpha(f"""select question_content from ts_test where id={ques_id}""")[0]
     INFO(f'作业id是{ques_id}')
 
-    # print(content)
-
     # 格式化数据库代码
     driver.implicitly_wait(1)
     mysql_connect = mysql_content_format(content)
     web_check(elem, driver, mysql_connect, ques_type)
     driver.implicitly_wait(5)
 
+    # print(content)
+    # print(mysql_connect)
+
 
 if __name__ == "__main__":
     # main_handler('110007911', 9999, 0, 6)
-    main_handler('280000026', 9999, 0, 6)
+    pass
