@@ -87,7 +87,7 @@ def mysql_content_format(xml_str):
 
         question.append([ques, answer])
 
-    mp3 = [i.text for i in root.findall('./La')]
+    mp3 = [i.text for i in root.findall('La/Sm')]
 
     mysql_dict = {
         '图片': image,
@@ -132,12 +132,11 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
         mp3_web = [
             f'({i.get_attribute("data-mp3")})({i.get_attribute("data-starttime")})({i.get_attribute("data-endtime")})'
             for i in elem.find_elements_by_css_selector('.p_Laudio')]
-        # print(mp3_web, mysql_connect['题目音频'])
-        CHECK_POINT('对比音频', mp3_web == mysql_connect['题目音频'])
+        print(mp3_web, mysql_connect['题目音频'])
+        CHECK_POINT('对比音频', getEqualRate(mp3_web, mysql_connect['题目音频']))
 
         play_btn = elem.find_element_by_css_selector('.btn_play.br_small')
         driver.execute_script("$(arguments[0]).click()", play_btn)
-        # print('音频暂不比对')
 
     if mysql_connect['题目问题、选项、答案']:
         print('开始--题目问题、选项、答案')
@@ -161,7 +160,7 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
             if ques_mysql_list[ii][1]:
                 print('----进入小题答案完成')
                 # 单项选择类型
-                if ques_type in ['1100', '1200', '1300', '2200', '2800', '2900']:
+                if ques_type in ['1100', '1200', '1300', '2200', '2800', '2900', '13600', '12900']:
                     opt_btn = ques_web_list[ii].find_element_by_css_selector(
                         f'label:nth-of-type({ques_mysql_list[ii][1][0]}) input')
                     driver.execute_script("$(arguments[0]).click()", opt_btn)
@@ -190,10 +189,10 @@ def main_handler(ques_id, ques_type, driver, elem):
     web_check(elem, driver, mysql_connect, ques_type)
     driver.implicitly_wait(5)
 
-    # print(content)
-    # print(mysql_connect)
+    print(content)
+    print(mysql_connect)
 
 
 if __name__ == "__main__":
     # main_handler('110007911', 9999, 0, 6)
-    main_handler('270003458', 999, 6, 0)
+    pass

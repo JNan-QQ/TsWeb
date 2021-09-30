@@ -48,12 +48,20 @@ class StudentExam:
             '10A': '高一第一学期',
             '10B': '高一第二学期',
             '10C': '必修第一册',
+            '10D': '选择性必修第一册',
+            '10F': '选修(提高类)第一册',
             '11A': '高二第一学期',
             '11B': '高二第二学期',
             '11C': '必修第二册',
+            '11D': '选择性必修第二册',
+            '11F': '选修(提高类)第二册',
             '12A': '高三第一学期',
             '12B': '高三第二学期',
             '12C': '必修第三册',
+            '12D': '选择性必修第三册',
+            '12F': '选修(提高类)第三册',
+            '13D': '选择性必修第四册',
+
         }
         # 选择年级
         select = Select(
@@ -205,6 +213,6 @@ if __name__ == "__main__":
     login.open_browser(BrowserDriver.student_browser)
     login.login(username='waiyan', password='123456lj', url=UrlBase.alpha['login_url'])
     studentExam.getExamPage(login.driver, mode=2)
-    studentExam.choseGrade('7A', 0)
-    studentExam.chosePaper('海北州7AUnit 1单元检测卷01', 2)
-    studentExam.doPaper('(海北州7AUnit 1单元检测卷01')
+    studentExam.choseGrade('12F', 0)
+    studentExam.chosePaper('译林牛津高三阅读专项练习07', 2)
+    studentExam.doPaper('译林牛津高三阅读专项练习07')
