@@ -30,7 +30,7 @@ class Login:
     def close_browser(self):
         self.driver.quit()
 
-    def login(self, username, password, url=UrlBase.rc['login_url']):
+    def login(self, username, password, url=UrlBase.alpha['login_url']):
         # 输入网站
         self.driver.get(url)
         # 输入用户名与密码

@@ -81,7 +81,7 @@ def mysql_content_format(xml_str):
         ques = [xml_text(i) for i in q_q.findall('./T/p') if not i.findall('./Idx')]
         # print(ques)
         # 提取小题选项 - web: class = label
-        opt = [xml_text1(i) for i in q_q.findall('./Opt/T')]
+        opt = [i.text for i in q_q.findall('./Opt/T') if i]
         ques += opt
         ques = [i for i in ques if i and i != ' ']
 
@@ -154,6 +154,7 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
                 ques = [i.text for i in ques_web_list[ii].find_elements_by_css_selector('.question_p') if i.text]
                 ques += [re.sub(r'[A-D]\. |[A-D]\.', '', i.text) for i in
                          ques_web_list[ii].find_elements_by_css_selector('label') if i.text]
+                ques = [i for i in ques if i]
                 CHECK_POINT('对比该小问问题内容', getEqualRate(ques, ques_mysql_list[ii][0]))
 
             # 答案
@@ -166,7 +167,7 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
                     driver.execute_script("$(arguments[0]).click()", opt_btn)
 
                 # 填空
-                elif ques_type in ['2100', '2600']:
+                elif ques_type in ['2100', '2500', '2600']:
                     sends_input = ques_web_list[ii].find_elements_by_css_selector('input')
                     for iii in range(len(ques_mysql_list[ii][1])):
                         sends_input[iii].send_keys(ques_mysql_list[ii][1][iii])
@@ -189,8 +190,8 @@ def main_handler(ques_id, ques_type, driver, elem):
     web_check(elem, driver, mysql_connect, ques_type)
     driver.implicitly_wait(5)
 
-    print(content)
-    print(mysql_connect)
+    # print(content)
+    # print(mysql_connect)
 
 
 if __name__ == "__main__":
