@@ -81,7 +81,7 @@ def mysql_content_format(xml_str):
         ques = [xml_text(i) for i in q_q.findall('./T/p') if not i.findall('./Idx')]
         # print(ques)
         # 提取小题选项 - web: class = label
-        opt = [i.text for i in q_q.findall('./Opt/T') if i]
+        opt = [xml_text1(i) for i in q_q.findall('./Opt/T')]
         ques += opt
         ques = [i for i in ques if i and i != ' ']
 
@@ -161,7 +161,7 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
             if ques_mysql_list[ii][1]:
                 print('----进入小题答案完成')
                 # 单项选择类型
-                if ques_type in ['1100', '1200', '1300', '2200', '2800', '2900', '13600', '12900']:
+                if ques_type in ['1100', '1200', '1300', '2200', '2800', '2900', '13600', '12900', '12800']:
                     opt_btn = ques_web_list[ii].find_element_by_css_selector(
                         f'label:nth-of-type({ques_mysql_list[ii][1][0]}) input')
                     driver.execute_script("$(arguments[0]).click()", opt_btn)
@@ -190,7 +190,7 @@ def main_handler(ques_id, ques_type, driver, elem):
     web_check(elem, driver, mysql_connect, ques_type)
     driver.implicitly_wait(5)
 
-    # print(content)
+    # print(content, '\n')
     # print(mysql_connect)
 
 
