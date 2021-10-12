@@ -11,6 +11,7 @@ from selenium.webdriver.support.ui import Select
 from lib.CheckImgAndVideo import getEqualRate
 from lib.Mysql_Read import mysql_read_alpha
 from lib.CheckImgAndVideo import imageCheck
+from config.config import QType
 
 try:
     import xml.etree.cElementTree as eT
@@ -161,13 +162,13 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
             if ques_mysql_list[ii][1]:
                 print('----进入小题答案完成')
                 # 单项选择类型
-                if ques_type in ['1100', '1200', '1300', '2200', '2800', '2900', '13600', '12900', '12800']:
+                if ques_type in QType.opt:
                     opt_btn = ques_web_list[ii].find_element_by_css_selector(
                         f'label:nth-of-type({ques_mysql_list[ii][1][0]}) input')
                     driver.execute_script("$(arguments[0]).click()", opt_btn)
 
                 # 填空
-                elif ques_type in ['2100', '2500', '2600']:
+                elif ques_type in QType.blank:
                     sends_input = ques_web_list[ii].find_elements_by_css_selector('input')
                     for iii in range(len(ques_mysql_list[ii][1])):
                         sends_input[iii].send_keys(ques_mysql_list[ii][1][iii])
@@ -188,6 +189,7 @@ def main_handler(ques_id, ques_type, driver, elem):
     driver.implicitly_wait(1)
     mysql_connect = mysql_content_format(content)
     web_check(elem, driver, mysql_connect, ques_type)
+    print('\n')
     driver.implicitly_wait(5)
 
     # print(content, '\n')
