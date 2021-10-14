@@ -111,15 +111,21 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
         img_request = [imageCheck.run(i) for i in images_web]
         CHECK_POINT('各图片链接访问是否成功,图片是否完整', False not in img_request)
 
+        print('--比对图片完成！！！')
+
     if mysql_connect['题目短文标题']:
         print('开始比对短文标题')
         mid_web = [i.text for i in elem.find_elements_by_css_selector('.Mid') if i.text]
         CHECK_POINT('对比题目标题是否相同', getEqualRate(mid_web, mysql_connect['题目短文标题']))
 
+        print('--比对短文标题完成！！！')
+
     if mysql_connect['题目短文']:
         print('开始比对短文')
         idx_web = [i.text for i in elem.find_elements_by_css_selector('p.idx') if i.text]
         CHECK_POINT('对比题目短文是否相同', getEqualRate(idx_web, mysql_connect['题目短文']))
+
+        print('--比对短文完成！！！')
 
     if mysql_connect['题目短文2']:
         print('开始比对短文2')
@@ -127,6 +133,8 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
                     elem.find_elements_by_css_selector('.text_content p:not(.idx , .Mid)') if i.text]
         idx_web2 = [re.sub(r'__\d+__', '____', i) for i in idx_web2 if not i.isspace()]
         CHECK_POINT('对比题目短文2是否相同', getEqualRate(idx_web2, mysql_connect['题目短文2']))
+
+        print('--比对短文2完成！！！')
 
     if mysql_connect['题目音频']:
         print('开始比对短文音频')
@@ -139,8 +147,10 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
         play_btn = elem.find_element_by_css_selector('.btn_play.br_small')
         driver.execute_script("$(arguments[0]).click()", play_btn)
 
+        print('--比对音频完成！！！')
+
     if mysql_connect['题目问题、选项、答案']:
-        print('开始--题目问题、选项、答案')
+        print('开始完成小题 题目问题、选项、答案')
         ques_mysql_list = mysql_connect['题目问题、选项、答案']
         ques_web_list = elem.find_elements_by_css_selector('.question_content')
         CHECK_POINT(f'小题数量对比 web:{len(ques_web_list)},mysql:{len(ques_mysql_list)}',
@@ -176,6 +186,8 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
                 elif ques_type in ['3000']:
                     select = Select(ques_web_list[ii].find_element_by_css_selector("select"))
                     select.select_by_index(ques_mysql_list[ii][1][0])
+
+        print('--小题作答完成！！！')
 
     elif ques_type in ['2700']:
         elem.find_element_by_css_selector('textarea').send_keys('[cs] [jiangnan] [zdh]')
