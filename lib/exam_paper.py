@@ -3,6 +3,7 @@
 # @Time      :2021/8/17 9:34
 # @Author    :姜楠
 # @Tool      :PyCharm
+import re
 from time import sleep
 from hytest import *
 from selenium import webdriver
@@ -201,6 +202,21 @@ class StudentExam:
         wrong = [i.text for i in self.driver.find_elements_by_css_selector('.answer_list_wrong_class')]
         INFO(f'答对的题目序号：{right}')
         INFO(f'答错的题目序号：{wrong}')
+
+        question_score = {}
+        if question_score:
+            s_score = sum([question_score[i] for i in right])
+            n_score = sum([question_score[i] for i in question_score])
+            print(f'学生应得分：{s_score}，试卷总分（应该）：{n_score}')
+
+        web_score = self.driver.find_element_by_css_selector('.p_paper_nature  ul').text
+        print(web_score)
+        web_s_score, web_n_score = re.findall(r'得分：(\d+).*?满分：(\d+)', web_score, re.S)[0]
+        print(f'学生实际得分：{web_s_score}，试卷实际总分：{web_n_score}')
+        INFO(f'学生实际得分：{web_s_score}，试卷实际总分：{web_n_score}')
+
+        # CHECK_POINT('检查学生得分是否正确', s_score == int(web_s_score))
+        # CHECK_POINT('检查试卷总分是否正确', n_score == int(web_n_score))
 
         return True
 
