@@ -44,7 +44,7 @@ def xml_text1(p):
 
 
 def replace_xml(p):
-    x = ['B', 'U', 'I']
+    x = ['B', 'U', 'I', 'br/']
     for i in x:
         p = p.replace(f'<{i}>', '').replace(f'</{i}>', '')
     return p
@@ -90,6 +90,11 @@ def mysql_content_format(xml_str):
 
     mp3 = [i.text for i in root.findall('La/Sm')]
 
+    # class = china_q
+    sh_q = [i.text for i in root.findall('Sh/p')]
+
+    sa_q = re.findall(r'\((.*?\.mp3)\)\(\d+\)\(\d+\)', root.findall('Sa')[0].text, re.S)
+
     mysql_dict = {
         '图片': image,
         '题目短文标题': mid_text,
@@ -97,6 +102,7 @@ def mysql_content_format(xml_str):
         '题目短文2': idx_text2,
         '题目问题、选项、答案': question,
         '题目音频': mp3,
+        '情景问答': [sh_q, sa_q]
     }
     # print(mysql_dict)
     return mysql_dict
@@ -148,6 +154,26 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
         driver.execute_script("$(arguments[0]).click()", play_btn)
 
         print('--比对音频完成！！！')
+
+    if mysql_connect['情景问答']:
+
+        if mysql_connect['情景问答'][0]:
+            print('开始比对情景问答')
+
+            web_sh = [i.get_attribute('innerText') for i in
+                      elem.find_elements_by_css_selector('.china_q .china_question')]
+            web_sh = [re.sub(r'^[0-9]\.', '', i) for i in web_sh]
+
+            web_sa = [i.get_attribute('data-mp3') for i in
+                      elem.find_elements_by_css_selector('.speak_sentence.no_audio')]
+            INFO(mysql_connect['情景问答'])
+            INFO([web_sh, web_sa])
+            CHECK_POINT('比对情景问答题目音频', mysql_connect['情景问答'] == [web_sh, web_sa])
+
+            play_btn = elem.find_element_by_css_selector('.btn_play.br_small')
+            driver.execute_script("$(arguments[0]).click()", play_btn)
+
+        print('--比对情景问答完成！！！')
 
     if mysql_connect['题目问题、选项、答案']:
         print('开始完成小题 题目问题、选项、答案')
