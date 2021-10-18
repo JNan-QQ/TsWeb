@@ -148,6 +148,7 @@ class StudentExam:
                 # SELENIUM_LOG_SCREEN(self.driver, width='70%')
                 print(f'第{n}题试题作答、判断失败？？？')
                 pass
+            INFO('\n\n')
             sleep(0.3)
             n += 1
 
@@ -228,7 +229,7 @@ if __name__ == "__main__":
 
     login.open_browser(BrowserDriver.student_browser)
     login.login(username='waiyan', password='123456lj', url=UrlBase.alpha['login_url'])
-    studentExam.getExamPage(login.driver, mode=2)
-    studentExam.choseGrade('12F', 0)
-    studentExam.chosePaper('译林牛津高三阅读专项练习07', 2)
-    studentExam.doPaper('译林牛津高三阅读专项练习07')
+    studentExam.getExamPage(login.driver, mode=1)
+    studentExam.choseGrade('9C', 0)
+    studentExam.chosePaper('贵阳市人机对话中考模拟试卷01', 1)
+    studentExam.doPaper('贵阳市人机对话中考模拟试卷01')
