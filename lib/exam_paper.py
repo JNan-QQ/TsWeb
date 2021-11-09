@@ -189,6 +189,7 @@ class StudentExam:
                 if save_n > 10:
                     CHECK_POINT('作业提交失败', False)
                     break
+                sleep(0.5)
             except:
                 num_n += 1
                 if num_n > 10:
@@ -230,6 +231,7 @@ if __name__ == "__main__":
     login.open_browser(BrowserDriver.student_browser)
     login.login(username='waiyan', password='123456lj', url=UrlBase.alpha['login_url'])
     studentExam.getExamPage(login.driver, mode=1)
-    studentExam.choseGrade('9C', 0)
-    studentExam.chosePaper('贵阳市人机对话中考模拟试卷01', 1)
-    studentExam.doPaper('贵阳市人机对话中考模拟试卷01')
+    studentExam.choseGrade('8A', 0)
+    studentExam.chosePaper('2022潍坊[40分]8A人机对话期末卷42', 1)
+    studentExam.doPaper('2022潍坊[40分]8A人机对话期末卷42')
+    studentExam.checkResult()

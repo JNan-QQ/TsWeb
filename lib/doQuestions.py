@@ -174,7 +174,15 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
                       elem.find_elements_by_css_selector('.speak_sentence')]
             INFO(mysql_connect['情景问答'])
             INFO([web_sh, web_sa])
-            CHECK_POINT('----比对问答题目音频', mysql_connect['情景问答'] == [web_sh, web_sa])
+            if mysql_connect['情景问答'] != [web_sh, web_sa]:
+                if web_sh != mysql_connect['情景问答'][0]:
+                    CHECK_POINT('----比对问答题目音频 - 题目', False)
+                for web_sa_i in web_sa:
+                    if web_sa_i not in mysql_connect['情景问答'][1]:
+                        CHECK_POINT('----比对问答题目音频 - 音频', False)
+                        break
+            else:
+                CHECK_POINT('----比对问答题目音频', True)
 
             play_btn = elem.find_element_by_css_selector('.btn_play.br_small')
             driver.execute_script("$(arguments[0]).click()", play_btn)
@@ -230,7 +238,7 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
 
 def main_handler(ques_id, ques_type, driver, elem):
     content = mysql_read_alpha(f"""select question_content from ts_test where id={ques_id}""")[0]
-    INFO(f'----作业id是{ques_id}')
+    INFO(f'----试题id是{ques_id}')
 
     # 格式化数据库代码
     driver.implicitly_wait(1)
