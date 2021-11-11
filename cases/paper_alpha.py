@@ -55,7 +55,7 @@ class Test_:
         CHECK_POINT('选择正确年级', ret)
 
         STEP(3, f'查找试卷 {paper_name}')
-        ret = studentExam.chosePaper(paper_name, mode)
+        ret = studentExam.chosePaper(paper_name, mode, UrlBase.alpha['start_url'])
         CHECK_POINT('查找到试卷', ret)
 
         STEP(4, '学生练习试卷')

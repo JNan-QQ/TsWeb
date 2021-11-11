@@ -82,8 +82,13 @@ class StudentExam:
 
         return True
 
-    def chosePaper(self, paper_name, mode):
+    def chosePaper(self, paper_name, mode, start_url=''):
         list1 = ['.rjdh_paper_title', '.bishi_paper_title', '.unit_paper_title']
+        # 进入开始页面
+        if start_url:
+            self.driver.get(start_url)
+            sleep(2)
+
         while True:
             flg = False
             if mode == 3:  # 单元练习
