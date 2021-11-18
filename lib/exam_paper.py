@@ -103,13 +103,13 @@ class StudentExam:
                         i.find_element_by_css_selector('.remain_status_btn a:nth-child(1)').click()
                     flg = True
                     break
-            if flg:
-                break
             else:
                 btn = self.driver.find_element_by_css_selector('a.next')
                 self.driver.execute_script("$(arguments[0]).click()", btn)
                 sleep(2)
 
+            if flg:
+                break
         return True
 
     def doPaper(self, paper_name):
