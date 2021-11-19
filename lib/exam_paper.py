@@ -186,14 +186,28 @@ class StudentExam:
                         CHECK_POINT('录音判分成功', False)
                         break
                 elif msg_info.text == '记录保存成功':
-                    self.driver.find_element_by_css_selector('.ui-button-text').click()
+                    for button in self.driver.find_elements_by_css_selector('.ui-button-text'):
+                        if button.text == '我知道':
+                            button.click()
+                            continue
                     break
                 else:
                     save_n += 1
                     sleep(0.5)
+
                 if save_n > 10:
                     CHECK_POINT('作业提交失败', False)
                     break
+                elif self.driver.find_elements_by_css_selector('.ui-dialog .zeroTips p'):
+                    for button in self.driver.find_elements_by_css_selector('.ui-button-text'):
+                        if button.text == '继续提交':
+                            button.click()
+                            sleep(0.5)
+                            continue
+                    for button in self.driver.find_elements_by_css_selector('.ui-button-text'):
+                        if button.text == '提交':
+                            button.click()
+                            continue
                 sleep(0.5)
             except:
                 num_n += 1
