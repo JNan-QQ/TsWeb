@@ -135,7 +135,8 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
     if mysql_connect['题目短文']:
         print('开始比对短文')
         idx_web = [i.text for i in elem.find_elements_by_css_selector('p.idx') if i.text]
-        CHECK_POINT('----对比题目短文是否相同', getEqualRate(idx_web, mysql_connect['题目短文']))
+        if idx_web:
+            CHECK_POINT('----对比题目短文是否相同', getEqualRate(idx_web, mysql_connect['题目短文']))
 
         print('--比对短文完成！！！')
 
@@ -225,7 +226,7 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
                     for iii in range(len(ques_mysql_list[ii][1])):
                         sends_input[iii].send_keys(ques_mysql_list[ii][1][iii])
 
-                elif ques_type in ['3000']:
+                elif ques_type in ['1700', '3000']:
                     select = Select(ques_web_list[ii].find_element_by_css_selector("select"))
                     select.select_by_index(ques_mysql_list[ii][1][0])
 
@@ -252,7 +253,7 @@ def main_handler(ques_id, ques_type, driver, elem):
 
 
 if __name__ == "__main__":
-    q_isd = 160009915
+    q_isd = 1
     c = mysql_read_alpha(f"""select question_content from ts_test where id={q_isd}""")[0]
     a = mysql_content_format(c)
     print(c, '\n')
