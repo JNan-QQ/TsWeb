@@ -21,26 +21,25 @@ except ImportError:
 
 # 短文
 def xml_text(p):
-    c = ''
+    cc = ''
     if p.text:
-        c = p.text
+        cc = p.text
     for i in p.iter():
         if i.tail:
-            c += i.tail
-    if not c and c.isspace():
-        c = ''
+            cc += i.tail
+    cc = cc.rstrip()
 
-    return c
+    return cc
 
 
 # 选项
 def xml_text1(p):
-    c = ''
+    cc = ''
     for i in p.itertext():
         if i and not i.isspace():
-            c += i
-    c = c.replace('\u3000', '')
-    return c
+            cc += i
+    cc = cc.rstrip()
+    return cc
 
 
 def replace_xml(p):
