@@ -5,6 +5,8 @@
 # @Tool      :PyCharm
 import datetime
 import os
+import traceback
+
 import requests
 from config.config import LibConfig
 import wmi
@@ -18,11 +20,12 @@ class YZM:
 
     @staticmethod
     def cipherTable(str1):
-        list1 = list(str1)
+        k = '105201314'
+        k = k + k + k + k + k + k
         str2 = ''
-        for i in list1:
+        for i, j in zip(str1, k):
             if i.isalpha():
-                str2 += str(ord(i) - 64)
+                str2 += str(ord(i) - 64 + ord(j))
             else:
                 str2 += i
         return str2
@@ -57,6 +60,7 @@ class YZM:
                 if mode == 2:
                     os.remove(self.file_path)
         except:
+            traceback.print_exc()
             print('服务器异常！')
 
     def logout(self):
@@ -87,10 +91,12 @@ class YZM:
 
         res = res.json()
         if res['ret'] == 0 and res['activeCode'] == activeCode:
-            print(f'该账号有效期至：{res["endTime"]} ,请注意使用时间及时续费!')
+            print(f'该账号有效期至：{res["endTime"].replace("T"," ")} ,请注意使用时间及时续费!')
             return True
         else:
-            pass
+            mode = input('1.包年（1000）/2.包月（100）：')
+            res = self.session.get(f'http://{self.host}/Order?mode={mode}&action=createOrder')
+            print(res.json())
 
     # 激活系统
     def activation(self):
