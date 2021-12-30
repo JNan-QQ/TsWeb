@@ -15,10 +15,9 @@ from config.config import BrowserDriver
 
 def suite_setup():
     INFO('套件目录初始化')
-    STEP(1, '系统验证')
-    verfCode.license()
+    STEP(1, '登录')
+    verfCode.login()
     STEP(2, '打开浏览器')
-    print('PAPER1')
     GSTORE['driver1'] = login_1.open_browser(BrowserDriver.student_browser)
 
 
@@ -26,7 +25,7 @@ def suite_teardown():
     INFO('套件目录清除')
     STEP(1, '关闭浏览器')
     login_1.close_browser()
-
+    verfCode.logout()
 
 class MySignalHandler:
     TEST_RET_COL_NO = CasesConfig.case_result  # 测试结果在用例excel文件中的列数

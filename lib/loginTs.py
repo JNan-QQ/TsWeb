@@ -19,6 +19,7 @@ class Login:
             self.driver = webdriver.Edge(browser_dict['driver_path'])
         elif btype in ['Chrome', 'Ie', 'FireFox']:
             options = getattr(webdriver, f'{btype}Options')()
+            options.add_experimental_option('excludeSwitches', ['enable-logging'])
             options.binary_location = browser_dict['browser_path']
             self.driver = getattr(webdriver, btype)(browser_dict['driver_path'], options=options)
         else:

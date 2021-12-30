@@ -11,6 +11,7 @@ from lib.doQuestions import main_handler
 from selenium.webdriver.support.ui import Select
 from config.config import UrlBase
 from lib.loginTs import login
+from lib.VerificationCode import verfCode
 
 
 class StudentExam:
@@ -19,6 +20,7 @@ class StudentExam:
     driver = None
 
     def getExamPage(self, driver, mode=1, url=None):
+        verfCode.checkActivation()
         sleep(1)
         INFO(f'进入{self.mode_name[mode - 1]}界面')
         self.driver: webdriver.Edge = driver
