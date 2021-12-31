@@ -6,6 +6,7 @@
 import datetime
 import os
 import traceback
+from urllib import parse
 
 import requests
 from config.config import LibConfig
@@ -77,7 +78,7 @@ class YZM:
         # 设备编码
         machineCode = cpu[0:7] + board[0:-7] + cpu[7:] + board[-7:]
 
-        print('开始验证设备是否激活.....')
+        print('开始验证设备是否可以激活.....\n')
         res = self.session.post(f'http://{self.host}/Token', json={
             'action': 'machineCode',
             'code': machineCode
@@ -91,12 +92,13 @@ class YZM:
 
         res = res.json()
         if res['ret'] == 0 and res['activeCode'] == activeCode:
-            print(f'该账号有效期至：{res["endTime"].replace("T"," ")} ,请注意使用时间及时续费!')
+
+            print(f'该账号有效期至：{res["endTime"].replace("T", " ")} ,请注意使用时间及时续费!')
             return True
         else:
-            mode = input('1.包年（1000）/2.包月（100）：')
-            res = self.session.get(f'http://{self.host}/Order?mode={mode}&action=createOrder')
-            print(res.json())
+            print(f'你的账号有效期至：{res["endTime"].replace("T", " ")} ,目前已经到期，请续费！\n')
+            print('请登录以下网址进行操作')
+            print()
 
     # 激活系统
     def activation(self):
