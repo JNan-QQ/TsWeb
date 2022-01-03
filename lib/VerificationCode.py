@@ -6,17 +6,15 @@
 import datetime
 import os
 import traceback
-from urllib import parse
 
 import requests
-from config.config import LibConfig
 import wmi
 
 
 class YZM:
     file_path = fr"{os.path.expanduser('~')}/.jiangnan/license.jn"
     # host = LibConfig.verificationHost
-    host = '127.0.0.1:8210'
+    host = '127.0.0.1/api'
     session = requests.Session()
 
     @staticmethod
@@ -92,12 +90,11 @@ class YZM:
 
         res = res.json()
         if res['ret'] == 0 and res['activeCode'] == activeCode:
-
             print(f'该账号有效期至：{res["endTime"].replace("T", " ")} ,请注意使用时间及时续费!')
             return True
         else:
-            print(f'你的账号有效期至：{res["endTime"].replace("T", " ")} ,目前已经到期，请续费！\n')
-            print('请登录以下网址进行操作')
+            print(res['msg'])
+            print('\n或请登录以下网址进行操作：http://www.zdonghua.top')
             print()
 
     # 激活系统
