@@ -14,7 +14,7 @@ import wmi
 class YZM:
     file_path = fr"{os.path.expanduser('~')}/.jiangnan/license.jn"
     # host = LibConfig.verificationHost
-    host = '127.0.0.1/api'
+    host = '127.0.0.1:8210'
     session = requests.Session()
 
     @staticmethod
