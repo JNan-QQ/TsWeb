@@ -108,7 +108,7 @@ class StudentExam:
             else:
                 btn = self.driver.find_element_by_css_selector('a.next')
                 self.driver.execute_script("$(arguments[0]).click()", btn)
-                sleep(2)
+                sleep(5)
 
             if flg:
                 break
@@ -147,6 +147,7 @@ class StudentExam:
             ques_id = ques.get_attribute('data-id')
             ques_type = ques.get_attribute('data-type')
             INFO(f'进行第{n}题试题作答、判断')
+            print(f'进行第{n}题试题作答、判断')
             try:
                 # student_do_homework.quesHandler(ques_id, ques_type, ques, self.driver)
                 main_handler(ques_id, ques_type, self.driver, ques)
@@ -155,6 +156,7 @@ class StudentExam:
                 # SELENIUM_LOG_SCREEN(self.driver, width='70%')
                 print(f'第{n}题试题作答、判断失败？？？')
                 pass
+            print('\n')
             INFO('\n\n')
             sleep(0.3)
             n += 1
@@ -216,8 +218,11 @@ class StudentExam:
                 if num_n > 10:
                     SELENIUM_LOG_SCREEN(self.driver, width='70%')
                     CHECK_POINT('作业提交失败', False)
+                    print('作业提交失败')
                     break
                 sleep(0.5)
+        print('\n\n')
+
         return True
 
     def checkResult(self):
@@ -248,11 +253,11 @@ studentExam = StudentExam()
 
 if __name__ == "__main__":
     from config.config import BrowserDriver
-
+    verfCode.login()
     login.open_browser(BrowserDriver.student_browser)
     login.login(username='waiyan', password='123456lj', url=UrlBase.alpha['login_url'])
     studentExam.getExamPage(login.driver, mode=1)
-    studentExam.choseGrade('8A', 0)
-    studentExam.chosePaper('2022潍坊[40分]8A人机对话期末卷42', 1)
-    studentExam.doPaper('2022潍坊[40分]8A人机对话期末卷42')
+    studentExam.choseGrade('9B', 0)
+    studentExam.chosePaper('2021江苏省人机对话精品冲刺卷01', 1)
+    studentExam.doPaper('2021江苏省人机对话精品冲刺卷01')
     studentExam.checkResult()

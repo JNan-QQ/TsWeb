@@ -67,6 +67,17 @@ class ImageCheck:
 imageCheck = ImageCheck()
 
 
+def videoCheck(mp3_url):
+    flg = []
+    for i in mp3_url:
+        response = requests.get(f'https://static.waiyutong.org/book/mp3/{i}')
+        if response.status_code == 200:
+            flg.append(True)
+        else:
+            flg.append(False)
+    return flg
+
+
 def getEqualRate(web1, mysql1):
     """
     比较两个字符串的相似程度

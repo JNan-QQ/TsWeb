@@ -10,7 +10,7 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import Select
 from lib.CheckImgAndVideo import getEqualRate
 from lib.Mysql_Read import mysql_read_alpha
-from lib.CheckImgAndVideo import imageCheck
+from lib.CheckImgAndVideo import imageCheck, videoCheck
 from config.config import QType
 
 try:
@@ -115,56 +115,62 @@ def mysql_content_format(xml_str):
 
 def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, ques_type):
     if mysql_connect['图片']:
-        print('开始比对图片')
+        # print('开始比对图片')
         images_web = [i.get_attribute('src') for i in elem.find_elements_by_css_selector('img')]
         CHECK_POINT('----对比题目中的图片名字相同', imageCheck.check_name(images_web, mysql_connect['图片']))
 
         img_request = [imageCheck.run(i) for i in images_web]
         CHECK_POINT('----各图片链接访问是否成功,图片是否完整', False not in img_request)
 
-        print('--比对图片完成！！！')
+        # print('--比对图片完成！！！')
 
     if mysql_connect['题目短文标题']:
-        print('开始比对短文标题')
+        # print('开始比对短文标题')
         mid_web = [i.text for i in elem.find_elements_by_css_selector('.Mid') if i.text]
         CHECK_POINT('----对比题目标题是否相同', getEqualRate(mid_web, mysql_connect['题目短文标题']))
 
-        print('--比对短文标题完成！！！')
+        # print('--比对短文标题完成！！！')
 
     if mysql_connect['题目短文']:
-        print('开始比对短文')
+        # print('开始比对短文')
         idx_web = [i.text for i in elem.find_elements_by_css_selector('p.idx') if i.text]
         if idx_web:
             CHECK_POINT('----对比题目短文是否相同', getEqualRate(idx_web, mysql_connect['题目短文']))
 
-        print('--比对短文完成！！！')
+        # print('--比对短文完成！！！')
 
     if mysql_connect['题目短文2']:
-        print('开始比对短文2')
+        # print('开始比对短文2')
         idx_web2 = [re.sub(r'\(\d+\)', '()', i.text) for i in
                     elem.find_elements_by_css_selector('.text_content p:not(.idx , .Mid)') if i.text]
         idx_web2 = [re.sub(r'__\d+__', '____', i) for i in idx_web2 if not i.isspace()]
         CHECK_POINT('----对比题目短文2是否相同', getEqualRate(idx_web2, mysql_connect['题目短文2']))
 
-        print('--比对短文2完成！！！')
+        # print('--比对短文2完成！！！')
 
     if mysql_connect['题目音频']:
-        print('开始比对短文音频')
-        mp3_web = [
-            f'({i.get_attribute("data-mp3")})({i.get_attribute("data-starttime")})({i.get_attribute("data-endtime")})'
-            for i in elem.find_elements_by_css_selector('.p_Laudio')]
-        print(mp3_web, mysql_connect['题目音频'])
+        # print('开始比对短文音频')
+        mp3_web = []
+        mp3_url = []
+        for web_ss in elem.find_elements_by_css_selector('.p_Laudio'):
+            mp3_web.append(
+                f'({web_ss.get_attribute("data-mp3")})({web_ss.get_attribute("data-starttime")})({web_ss.get_attribute("data-endtime")})')
+            mp3_url.append(web_ss.get_attribute("data-mp3"))
+
         CHECK_POINT('----对比音频', getEqualRate(mp3_web, mysql_connect['题目音频']))
+
+        mp3_request_result = videoCheck(mp3_url)
+        CHECK_POINT('----访问音频链接', True in mp3_request_result)
 
         play_btn = elem.find_element_by_css_selector('.btn_play.br_small')
         driver.execute_script("$(arguments[0]).click()", play_btn)
 
-        print('--比对音频完成！！！')
+        # print('--比对音频完成！！！')
 
     if mysql_connect['情景问答']:
 
         if mysql_connect['情景问答'] != [[], []]:
-            print('开始比对音频2')
+            # print('开始比对音频2')
 
             web_sh = [i.get_attribute('innerText') for i in
                       elem.find_elements_by_css_selector('.china_q .china_question')]
@@ -187,10 +193,10 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
             play_btn = elem.find_element_by_css_selector('.btn_play.br_small')
             driver.execute_script("$(arguments[0]).click()", play_btn)
 
-        print('--比对音频2问答完成！！！')
+        # print('--比对音频2问答完成！！！')
 
     if mysql_connect['题目问题、选项、答案']:
-        print('开始完成小题 题目问题、选项、答案')
+        # print('开始完成小题 题目问题、选项、答案')
         ques_mysql_list = mysql_connect['题目问题、选项、答案']
         ques_web_list = elem.find_elements_by_css_selector('.question_content')
         CHECK_POINT(f'----小题数量对比 web:{len(ques_web_list)},mysql:{len(ques_mysql_list)}',
@@ -201,7 +207,7 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
 
             # 题目选项
             if ques_mysql_list[ii][0]:
-                print('----进入小题题目对比')
+                # print('----进入小题题目对比')
                 ques = [i.text for i in ques_web_list[ii].find_elements_by_css_selector('.question_p') if i.text]
                 ques += [re.sub(r'[A-D]\. |[A-D]\.', '', i.text) for i in
                          ques_web_list[ii].find_elements_by_css_selector('label') if i.text]
@@ -212,7 +218,7 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
 
             # 答案
             if ques_mysql_list[ii][1]:
-                print('----进入小题答案完成')
+                # print('----进入小题答案完成')
                 # 单项选择类型
                 if ques_type in QType.opt:
                     opt_btn = ques_web_list[ii].find_element_by_css_selector(
@@ -230,10 +236,12 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
                     select.select_by_index(ques_mysql_list[ii][1][0])
 
             INFO('------该小问作答完成')
-        print('--小题作答完成！！！')
+        # print('--小题作答完成！！！')
 
     elif ques_type in ['2700']:
         elem.find_element_by_css_selector('textarea').send_keys('[cs] [jiangnan] [zdh]')
+
+    return True
 
 
 def main_handler(ques_id, ques_type, driver, elem):
@@ -244,7 +252,7 @@ def main_handler(ques_id, ques_type, driver, elem):
     driver.implicitly_wait(1)
     mysql_connect = mysql_content_format(content)
     web_check(elem, driver, mysql_connect, ques_type)
-    print('\n')
+    # print('\n')
     driver.implicitly_wait(5)
 
     # print(content, '\n')

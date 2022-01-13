@@ -5,9 +5,9 @@
 # @Tool      :PyCharm
 
 from time import sleep
-from hytest import *
 from selenium import webdriver
-from config.config import AccountConfig,UrlBase
+from config.config import AccountConfig, UrlBase
+from msedge.selenium_tools import Edge, EdgeOptions
 
 
 class Login:
@@ -16,10 +16,13 @@ class Login:
     def open_browser(self, browser_dict):
         btype = browser_dict['browser_kernel']
         if btype == 'Edge':
-            self.driver = webdriver.Edge(browser_dict['driver_path'])
+            options = EdgeOptions()
+            options.use_chromium = True
+            options.add_experimental_option('excludeSwitches', ['enable-automation', 'enable-logging'])
+            self.driver = Edge(browser_dict['driver_path'], options=options)
         elif btype in ['Chrome', 'Ie', 'FireFox']:
             options = getattr(webdriver, f'{btype}Options')()
-            options.add_experimental_option('excludeSwitches', ['enable-logging'])
+            options.add_experimental_option('excludeSwitches', ['enable-automation', 'enable-logging'])
             options.binary_location = browser_dict['browser_path']
             self.driver = getattr(webdriver, btype)(browser_dict['driver_path'], options=options)
         else:

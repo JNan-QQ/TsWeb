@@ -3,7 +3,6 @@
 # @Time      :2021/7/23 15:04
 # @Author    :姜楠
 # @Tool      :PyCharm
-from hytest import *
 from config.config import CasesConfig
 import win32com.client
 import xlrd
@@ -26,6 +25,7 @@ def suite_teardown():
     STEP(1, '关闭浏览器')
     login_1.close_browser()
     verfCode.logout()
+
 
 class MySignalHandler:
     TEST_RET_COL_NO = CasesConfig.case_result  # 测试结果在用例excel文件中的列数
