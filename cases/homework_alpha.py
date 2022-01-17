@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
-# @FileName  :ExamPaper.py
-# @Time      :2021/8/17 9:25
+# @FileName  :homework_alpha.py
+# @Time      :2022/1/17 17:16
 # @Author    :姜楠
 # @Tool      :PyCharm
 from time import sleep
@@ -46,23 +46,15 @@ class Test_:
     def teststeps(self):
         mode, grade, paper_id, paper_name, paper_unit = self.para
 
-        STEP(1, f'进入{studentExam.mode_name[mode - 1]}页面')
-        ret = studentExam.getExamPage(GSTORE['driver1'], mode, UrlBase.alpha['mode_url'][mode - 1])
-        CHECK_POINT('进入指定界面', ret)
-
-        STEP(2, f'选择年级：{grade}|班级：{paper_unit}')
-        ret = studentExam.choseGrade(grade, paper_unit, paper_id)
-        CHECK_POINT('选择正确年级', ret)
-
-        STEP(3, f'查找试卷 {paper_name}')
+        STEP(1, f'查找试卷 {paper_name}')
         ret = studentExam.chosePaper(paper_name, mode, paper_id, UrlBase.alpha['start_url'])
         CHECK_POINT('查找到试卷', ret)
 
-        STEP(4, '学生练习试卷')
+        STEP(2, '学生练习试卷')
         ret = studentExam.doPaper(paper_name)
         CHECK_POINT('试卷练习完成', ret)
 
-        STEP(5, '查看练习结果')
+        STEP(3, '查看练习结果')
         ret = studentExam.checkResult()
         CHECK_POINT('练习结果查看正确', ret)
 

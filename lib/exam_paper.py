@@ -37,7 +37,11 @@ class StudentExam:
             sleep(1)
         return True
 
-    def choseGrade(self, grade, unit):
+    def choseGrade(self, grade, unit, paper_id=''):
+
+        if paper_id:
+            return True
+
         grades = {
             '6A': '六年级上',
             '6B': '六年级下',
@@ -84,7 +88,14 @@ class StudentExam:
 
         return True
 
-    def chosePaper(self, paper_name, mode, start_url=''):
+    def chosePaper(self, paper_name, mode, paper_id='', start_url=''):
+
+        if paper_id:
+            types_list = ['ts', 'bs']
+            self.driver.get(
+                fr'https://{UrlBase.username}-student.b.waiyutong.org/Practice/paperPractice.html?type={types_list[mode - 1]}&mode=free&id={paper_id}&province_id=11&city_id=22&version=3&grade=18')
+            return True
+
         list1 = ['.rjdh_paper_title', '.bishi_paper_title', '.unit_paper_title']
         # 进入开始页面
         if start_url:
@@ -253,6 +264,7 @@ studentExam = StudentExam()
 
 if __name__ == "__main__":
     from config.config import BrowserDriver
+
     verfCode.login()
     login.open_browser(BrowserDriver.student_browser)
     login.login(username='waiyan', password='123456lj', url=UrlBase.alpha['login_url'])

@@ -50,8 +50,11 @@ def read_excel_homework():
     return cases_dict
 
 
-def read_excel_paper():
-    book = xlrd.open_workbook(CasesConfig.cases_path)
+def read_excel_paper(excel_path=None):
+    if excel_path:
+        book = xlrd.open_workbook(excel_path)
+    else:
+        book = xlrd.open_workbook(CasesConfig.cases_path)
     # 获取名为cases的表单对象
     sheet = book.sheet_by_name('cases_paper')
     # 行数
@@ -62,14 +65,16 @@ def read_excel_paper():
 
         grade = sheet.cell_value(rowx=i, colx=2)
 
-        paper_name = sheet.cell_value(rowx=i, colx=3)
+        paper_id = sheet.cell_value(rowx=i, colx=3)
 
-        paper_unit = sheet.cell_value(rowx=i, colx=4)
+        paper_name = sheet.cell_value(rowx=i, colx=4)
 
-        cases_dict[sheet.cell_value(rowx=i, colx=0)] = [int(mode), grade, paper_name,paper_unit]
+        paper_unit = sheet.cell_value(rowx=i, colx=5)
+
+        cases_dict[sheet.cell_value(rowx=i, colx=0)] = [int(mode), grade, paper_id, paper_name, paper_unit]
 
     return cases_dict
 
 
 if __name__ == "__main__":
-    print(read_excel_homework())
+    print(read_excel_paper(r'D:\python_rc\TsWeb\config\cases.xlsx'))
