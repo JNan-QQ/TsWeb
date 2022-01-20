@@ -5,7 +5,7 @@
 # @Tool      :PyCharm
 from time import sleep
 from hytest import *
-from lib.exam_paper import studentExam
+from lib.exam_homework import studentExam
 from lib.loginTs import login_1
 from lib.ReadExcel import read_excel_paper
 from config.config import AccountConfig, UrlBase
@@ -41,16 +41,16 @@ class Test_:
     # ddt_cases 里面每个字典元素 定义一个用例的数据
     # 其中： name是该用例的名称， para是用例的参数
     ddt_cases = make_ddt()
-    tags = ['alpha']
+    tags = ['homework']
 
     def teststeps(self):
         mode, grade, paper_id, paper_name, paper_unit = self.para
 
-        STEP(1, f'查找试卷 {paper_name}')
-        ret = studentExam.chosePaper(paper_name, mode, paper_id, UrlBase.alpha['start_url'])
-        CHECK_POINT('查找到试卷', ret)
+        STEP(1, f'查找进入作业 {paper_name}')
+        ret = studentExam.chosePaper(GSTORE['driver1'], mode, paper_id)
+        CHECK_POINT('查找到作业', ret)
 
-        STEP(2, '学生练习试卷')
+        STEP(2, '学生练习作业')
         ret = studentExam.doPaper(paper_name)
         CHECK_POINT('试卷练习完成', ret)
 

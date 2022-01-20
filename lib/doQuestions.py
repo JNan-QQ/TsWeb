@@ -211,7 +211,7 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
                 ques = [i.text for i in ques_web_list[ii].find_elements_by_css_selector('.question_p') if i.text]
                 ques += [re.sub(r'[A-D]\. |[A-D]\.', '', i.text) for i in
                          ques_web_list[ii].find_elements_by_css_selector('label') if i.text]
-                ques = [i for i in ques if i]
+                ques = [i.split('\n')[0] for i in ques if i]
                 INFO(ques)
                 INFO(ques_mysql_list[ii][0])
                 CHECK_POINT('------对比该小问问题内容', getEqualRate(ques, ques_mysql_list[ii][0]))
