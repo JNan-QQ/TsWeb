@@ -13,18 +13,19 @@ from msedge.selenium_tools import Edge, EdgeOptions
 class Login:
     driver: webdriver.Edge = None
 
-    def open_browser(self, browser_dict):
-        btype = browser_dict['browser_kernel']
+    def open_browser(self, BrowserDriver):
+        btype = BrowserDriver.browser_kernel
+        print(btype)
         if btype == 'Edge':
             options = EdgeOptions()
             options.use_chromium = True
             options.add_experimental_option('excludeSwitches', ['enable-automation', 'enable-logging'])
-            self.driver = Edge(browser_dict['driver_path'], options=options)
+            self.driver = Edge(BrowserDriver.driver_path, options=options)
         elif btype in ['Chrome', 'Ie', 'FireFox']:
             options = getattr(webdriver, f'{btype}Options')()
             options.add_experimental_option('excludeSwitches', ['enable-automation', 'enable-logging'])
-            options.binary_location = browser_dict['browser_path']
-            self.driver = getattr(webdriver, btype)(browser_dict['driver_path'], options=options)
+            options.binary_location = BrowserDriver.browser_path
+            self.driver = getattr(webdriver, btype)(BrowserDriver.driver_path, options=options)
         else:
             print('浏览器类型输入有误!!!')
         self.driver.maximize_window()
@@ -34,7 +35,7 @@ class Login:
     def close_browser(self):
         self.driver.quit()
 
-    def login(self, username, password, url=UrlBase.alpha['login_url']):
+    def login(self, username, password, url=UrlBase.login_url):
         # 输入网站
         self.driver.get(url)
         # 输入用户名与密码

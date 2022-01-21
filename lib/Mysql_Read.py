@@ -8,7 +8,7 @@ from config.config import LibConfig
 
 
 def mysql_read_alpha(sql):
-    conf = LibConfig.mysqlAplha
+    conf = LibConfig.mysqlAlpha
     # 创建一个 Connection 对象，代表了一个数据库连接
     connection = MySQLdb.connect(
 

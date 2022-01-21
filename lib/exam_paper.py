@@ -15,12 +15,12 @@ from lib.VerificationCode import verfCode
 
 
 class StudentExam:
-    mode_url = UrlBase.alpha['mode_url']
+    mode_url = UrlBase.mode_url
     mode_name = ['人机对话', '笔试考场', '单元测试']
     driver = None
 
     def getExamPage(self, driver, mode=1, url=None):
-        verfCode.checkActivation()
+        # verfCode.checkActivation()
         sleep(1)
         INFO(f'进入{self.mode_name[mode - 1]}界面')
         self.driver: webdriver.Edge = driver
@@ -266,8 +266,8 @@ if __name__ == "__main__":
     from config.config import BrowserDriver
 
     verfCode.login()
-    login.open_browser(BrowserDriver.student_browser)
-    login.login(username='waiyan', password='123456lj', url=UrlBase.alpha['login_url'])
+    login.open_browser(BrowserDriver)
+    login.login(username='waiyan', password='123456lj', url=UrlBase.login_url)
     studentExam.getExamPage(login.driver, mode=1)
     studentExam.choseGrade('9B', 0)
     studentExam.chosePaper('2021江苏省人机对话精品冲刺卷01', 1)

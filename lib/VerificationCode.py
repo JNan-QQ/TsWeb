@@ -6,16 +6,16 @@
 import datetime
 import os
 import traceback
-
+from hytest import *
 import requests
 import wmi
 
 
 class YZM:
     file_path = fr"{os.path.expanduser('~')}/.jiangnan/license.jn"
-    # host = LibConfig.verificationHost
-    host = '127.0.0.1:8211'
+    host = '127.0.0.1:8210'
     session = requests.Session()
+    GSTORE['session'] = session
 
     @staticmethod
     def cipherTable(str1):
@@ -48,7 +48,11 @@ class YZM:
             mode = 2
 
         # 发送登录请求
-        res = self.session.get(f'http://{self.host}/Token?action=signin&username={username}&password={password}')
+        res = self.session.post(f'http://{self.host}/sign', json={
+            "username": username,
+            "password": password,
+            'action': 'signin'
+        })
         try:
             if res.json()['ret'] == 0:
                 print('账号登录成功！\n')
@@ -64,7 +68,9 @@ class YZM:
 
     def logout(self):
         # 发送登录请求
-        res = self.session.get(f'http://{self.host}/Token?action=signout')
+        res = self.session.post(f'http://{self.host}/sign', json={
+            'action': 'signout'
+        })
         if res.json()['ret'] == 0:
             print('退出登录成功')
 
@@ -97,52 +103,9 @@ class YZM:
             print('\n或请登录以下网址进行操作：http://www.zdonghua.top')
             print()
 
-    # 激活系统
-    def activation(self):
-        name = input('请输入激活分配用户名：')
-        tokens = input('请输入分配激活码：')
-        with open(self.file_path, 'w', encoding='utf8') as f:
-            f.write(f'{name}||{tokens}')
-
-        response = requests.get(fr'http://{self.host}/tokens?action=check&name={name}&token={tokens}')
-        res = response.json()
-        if res['ret'] == 0:
-            print('激活成功')
-            return True
-        else:
-            print('激活失败')
-            return False
-
-    def license(self):
-        if not os.path.exists(self.file_path):
-            os.makedirs(fr"{os.path.expanduser('~')}/.jiangnan", exist_ok=True)
-            return self.activation()
-        with open(self.file_path, 'r', encoding='utf8') as f:
-            str1 = f.read()
-        name = str1.split('||')[0]
-        token = str1.split('||')[1]
-        response = requests.get(fr'http://{self.host}/tokens?action=check&name={name}&token={token}')
-        res = response.json()
-        if res['ret'] == 0:
-            print('验证成功')
-            return True
-        else:
-            print('验证失败', res)
-            return False
-
-    def addLicense(self, name, tokens, type1):
-        response = requests.post(fr'http://{self.host}/tokens', json={
-            'action': 'add',
-            'name': name,
-            'token': tokens,
-            'type': type1
-        })
-        res = response.json()
-        return res
-
 
 verfCode = YZM()
 
 if __name__ == '__main__':
     verfCode.login()
-    verfCode.checkActivation()
+

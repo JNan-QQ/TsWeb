@@ -25,9 +25,7 @@ def make_ddt():
 def suite_setup():
     INFO('发布作业用例文件初始化')
     STEP(1, '学生登录')
-    login_1.login(AccountConfig.student['alpha']['student_username'],
-                  AccountConfig.student['alpha']['student_password'],
-                  UrlBase.alpha['login_url'])
+    login_1.login(AccountConfig.student[0], AccountConfig.student[1], UrlBase.login_url)
     sleep(0.5)
 
 

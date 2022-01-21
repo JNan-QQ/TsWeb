@@ -15,9 +15,9 @@ from config.config import BrowserDriver
 def suite_setup():
     INFO('套件目录初始化')
     STEP(1, '登录')
-    verfCode.login()
+    # verfCode.login()
     STEP(2, '打开浏览器')
-    GSTORE['driver1'] = login_1.open_browser(BrowserDriver.student_browser)
+    GSTORE['driver1'] = login_1.open_browser(BrowserDriver)
 
 
 def suite_teardown():
@@ -91,4 +91,3 @@ class MySignalHandler:
 
 # 注册这个类的实例 为一个 hytest 信号处理对象
 signal.register(MySignalHandler())
-print('base')
