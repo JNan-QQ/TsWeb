@@ -4,6 +4,7 @@
 # @Author    :姜楠
 # @Tool      :PyCharm
 import re
+import traceback
 from time import sleep
 from hytest import *
 from selenium import webdriver
@@ -20,7 +21,6 @@ class StudentExam:
     driver = None
 
     def getExamPage(self, driver, mode=1, url=None):
-        # verfCode.checkActivation()
         sleep(1)
         INFO(f'进入{self.mode_name[mode - 1]}界面')
         self.driver: webdriver.Edge = driver
@@ -35,6 +35,7 @@ class StudentExam:
             sleep(1)
         except:
             sleep(1)
+
         return True
 
     def choseGrade(self, grade, unit, paper_id=''):
@@ -89,6 +90,8 @@ class StudentExam:
         return True
 
     def chosePaper(self, paper_name, mode, paper_id='', start_url=''):
+        if not verfCode.simpleCheck():
+            return False
 
         if paper_id:
             types_list = ['ts', 'bs']
@@ -164,6 +167,7 @@ class StudentExam:
                 main_handler(ques_id, ques_type, self.driver, ques)
                 print(f'第{n}题试题作答、判断完成！！！')
             except:
+                traceback.print_exc()
                 # SELENIUM_LOG_SCREEN(self.driver, width='70%')
                 print(f'第{n}题试题作答、判断失败？？？')
                 pass

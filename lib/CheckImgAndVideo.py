@@ -43,6 +43,7 @@ class ImageCheck:
             return flg
 
     def DownloadImage(self, image_url):
+        print(image_url)
         response = requests.get(image_url)
         if response.status_code == 200:
             return response.content

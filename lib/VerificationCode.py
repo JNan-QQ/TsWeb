@@ -5,6 +5,7 @@
 # @Tool      :PyCharm
 import datetime
 import os
+import time
 import traceback
 from hytest import *
 import requests
@@ -18,15 +19,15 @@ class YZM:
     GSTORE['session'] = session
 
     @staticmethod
-    def cipherTable(str1):
+    def cipherTable():
         k = '105201314'
-        k = k + k + k + k + k + k
         str2 = ''
+        str1 = str(time.time())[0:8]
         for i, j in zip(str1, k):
             if i.isalpha():
                 str2 += str(ord(i) - 64 + ord(j))
             else:
-                str2 += i
+                str2 += str(int(i) + int(j))
         return str2
 
     def login(self):
@@ -74,6 +75,25 @@ class YZM:
         if res.json()['ret'] == 0:
             print('退出登录成功')
 
+    def simpleCheck(self):
+        print('开始验证设备是否可以激活.....\n')
+        res = self.session.post(f'http://{self.host}/pay/user', json={
+            'action': 'checkActive',
+        })
+        if res.status_code == 200:
+            res = res.json()
+            if res['ret'] == 0:
+                if res['code'] != self.cipherTable():
+                    print('验证失败')
+                    return False
+                return True
+            else:
+                print(res['msg'])
+                return False
+        else:
+            print('请求出错')
+            return False
+
     def checkActivation(self):
         c = wmi.WMI()
 
@@ -92,7 +112,7 @@ class YZM:
         activeCode = machineCode[0:2] + now_time[10:] + machineCode[2:4] + now_time[6:8] + machineCode[4:6] + \
                      now_time[0:2] + machineCode[6:9] + now_time[8:10] + machineCode[9:10] + now_time[
                                                                                              2:4] + machineCode[10:]
-        activeCode = self.cipherTable(activeCode)
+        activeCode = self.cipherTable()
 
         res = res.json()
         if res['ret'] == 0 and res['activeCode'] == activeCode:
@@ -108,4 +128,4 @@ verfCode = YZM()
 
 if __name__ == '__main__':
     verfCode.login()
-
+    verfCode.simpleCheck()

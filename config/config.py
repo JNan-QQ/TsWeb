@@ -16,8 +16,6 @@ def getConfig():
         'action': 'listServerConfig',
     })
 
-    print(configDict.text)
-
     return configDict.json()['userServerConfig']
 
 
@@ -28,8 +26,8 @@ config_dict = getConfig()
 class UrlBase:
     username = config_dict['UrlBase']['username']
     login_url = fr'https://{username}-www.b.waiyutong.org/'
-    mode_url = [fr'http://{username}-student.b.waiyutong.org/Paper/renjiduihua.html'
-                fr'http://{username}-student.b.waiyutong.org/Paper/bishi.html'
+    mode_url = [fr'http://{username}-student.b.waiyutong.org/Paper/renjiduihua.html',
+                fr'http://{username}-student.b.waiyutong.org/Paper/bishi.html',
                 fr'http://{username}-student.b.waiyutong.org/Practice/papers.html']
     start_url = config_dict['UrlBase']['start_url']
 

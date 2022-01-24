@@ -15,7 +15,6 @@ from config.config import BrowserDriver
 def suite_setup():
     INFO('套件目录初始化')
     STEP(1, '登录')
-    # verfCode.login()
     STEP(2, '打开浏览器')
     GSTORE['driver1'] = login_1.open_browser(BrowserDriver)
 
