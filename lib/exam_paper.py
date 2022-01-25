@@ -107,6 +107,7 @@ class StudentExam:
 
         while True:
             flg = False
+            sleep(2)
             if mode == 3:  # 单元练习
                 papers = self.driver.find_elements_by_css_selector('.unit_paper')
             else:

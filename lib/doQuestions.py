@@ -119,8 +119,8 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
         images_web = [i.get_attribute('src') for i in elem.find_elements_by_css_selector('img')]
         CHECK_POINT('----对比题目中的图片名字相同', imageCheck.check_name(images_web, mysql_connect['图片']))
 
-        img_request = [imageCheck.run(i) for i in images_web]
-        CHECK_POINT('----各图片链接访问是否成功,图片是否完整', False not in img_request)
+        # img_request = [imageCheck.run(i) for i in images_web]
+        # CHECK_POINT('----各图片链接访问是否成功,图片是否完整', False not in img_request)
 
         # print('--比对图片完成！！！')
 
