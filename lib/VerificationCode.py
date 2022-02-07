@@ -14,7 +14,7 @@ import wmi
 
 class YZM:
     file_path = fr"{os.path.expanduser('~')}/.jiangnan/license.jn"
-    host = '127.0.0.1:8210'
+    host = 'www.zdhua.top'
     session = requests.Session()
     GSTORE['session'] = session
 
@@ -49,7 +49,7 @@ class YZM:
             mode = 2
 
         # 发送登录请求
-        res = self.session.post(f'http://{self.host}/sign', json={
+        res = self.session.post(f'https://{self.host}/api/sign', json={
             "username": username,
             "password": password,
             'action': 'signin'
@@ -69,15 +69,15 @@ class YZM:
 
     def logout(self):
         # 发送登录请求
-        res = self.session.post(f'http://{self.host}/sign', json={
+        res = self.session.post(f'https://{self.host}/api/sign', json={
             'action': 'signout'
         })
         if res.json()['ret'] == 0:
             print('退出登录成功')
 
     def simpleCheck(self):
-        print('开始验证设备是否可以激活.....\n')
-        res = self.session.post(f'http://{self.host}/pay/user', json={
+        print('开始验证设备是否激活.....\n')
+        res = self.session.post(f'https://{self.host}/api/pay/user', json={
             'action': 'checkActive',
         })
         if res.status_code == 200:
@@ -86,6 +86,7 @@ class YZM:
                 if res['code'] != self.cipherTable():
                     print('验证失败')
                     return False
+                print('账号在服务期间')
                 return True
             else:
                 print(res['msg'])
