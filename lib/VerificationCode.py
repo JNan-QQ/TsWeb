@@ -82,10 +82,15 @@ class YZM:
         })
         if res.status_code == 200:
             res = res.json()
+            local_code = self.cipherTable()
             if res['ret'] == 0:
-                if res['code'] != self.cipherTable():
-                    print('验证失败')
-                    return False
+                # if res['code'] != local_code:
+                #     if int(res['code']) == int(local_code)-1:
+                #         return True
+                #     else:
+                #         print('验证失败')
+                #         print('\n或请登录以下网址进行操作：https://www.zdonghua.top\n')
+                #         return False
                 print('账号在服务期间')
                 return True
             else:
@@ -121,7 +126,7 @@ class YZM:
             return True
         else:
             print(res['msg'])
-            print('\n或请登录以下网址进行操作：http://www.zdonghua.top')
+            print('\n或请登录以下网址进行操作：https://www.zdonghua.top')
             print()
 
 

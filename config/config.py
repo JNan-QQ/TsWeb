@@ -4,15 +4,16 @@
 # @Author    :姜楠
 # @Tool      :PyCharm
 import os
+import requests
 from hytest import *
 from lib.VerificationCode import verfCode
 
 
 def getConfig():
     verfCode.login()
-    session = GSTORE['session']
+    session: requests.Session = GSTORE['session']
 
-    configDict = session.post(f'http://{verfCode.host}/pay/user', json={
+    configDict = session.post(f'https://{verfCode.host}/api/pay/user', json={
         'action': 'listServerConfig',
     })
 
@@ -70,4 +71,3 @@ class QType:
 
     # 填空题
     blank = config_dict['QType']['blank']
-
