@@ -3,7 +3,6 @@
 # @Time      :2021/8/10 10:35
 # @Author    :姜楠
 # @Tool      :PyCharm
-import os
 import requests
 from hytest import *
 from lib.VerificationCode import verfCode

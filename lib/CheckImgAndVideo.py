@@ -5,7 +5,6 @@
 # @Tool      :PyCharm
 import difflib
 from hytest import INFO
-import os
 import requests
 
 """

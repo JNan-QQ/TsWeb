@@ -25,7 +25,8 @@ def make_ddt():
 def suite_setup():
     INFO('发布作业用例文件初始化')
     STEP(1, '学生登录')
-    login_1.login(AccountConfig.student[0], AccountConfig.student[1], UrlBase.login_url)
+    login_1.login(AccountConfig.student[0],
+                  AccountConfig.student[1], UrlBase.login_url)
     sleep(0.5)
 
 
@@ -45,7 +46,8 @@ class Test_:
         mode, grade, paper_id, paper_name, paper_unit = self.para
 
         STEP(1, f'进入{studentExam.mode_name[mode - 1]}页面')
-        ret = studentExam.getExamPage(GSTORE['driver1'], mode, UrlBase.mode_url[mode - 1])
+        ret = studentExam.getExamPage(
+            GSTORE['driver1'], mode, UrlBase.mode_url[mode - 1])
         CHECK_POINT('进入指定界面', ret)
 
         STEP(2, f'选择年级：{grade}|班级：{paper_unit}')
@@ -53,7 +55,8 @@ class Test_:
         CHECK_POINT('选择正确年级', ret)
 
         STEP(3, f'查找试卷 {paper_name}')
-        ret = studentExam.chosePaper(paper_name, mode, paper_id, UrlBase.start_url)
+        ret = studentExam.chosePaper(
+            paper_name, mode, paper_id, UrlBase.start_url)
         CHECK_POINT('查找到试卷', ret)
 
         STEP(4, '学生练习试卷')

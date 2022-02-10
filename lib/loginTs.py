@@ -6,6 +6,8 @@
 
 from time import sleep
 from selenium import webdriver
+from selenium.webdriver import DesiredCapabilities
+
 from config.config import AccountConfig, UrlBase
 from msedge.selenium_tools import Edge, EdgeOptions
 
@@ -16,19 +18,11 @@ class Login:
     def open_browser(self, BrowserDriver):
         btype = BrowserDriver.browser_kernel
         print(btype)
-        if btype == 'Edge':
-            options = EdgeOptions()
-            options.use_chromium = True
-            options.add_experimental_option('excludeSwitches', ['enable-automation', 'enable-logging'])
-            self.driver = Edge(BrowserDriver.driver_path, options=options)
-        elif btype in ['Chrome', 'Ie', 'FireFox']:
-            options = getattr(webdriver, f'{btype}Options')()
-            options.add_experimental_option('excludeSwitches', ['enable-automation', 'enable-logging'])
-            options.binary_location = BrowserDriver.browser_path
-            self.driver = getattr(webdriver, btype)(BrowserDriver.driver_path, options=options)
-        else:
-            print('浏览器类型输入有误!!!')
-        self.driver.maximize_window()
+        btype = btype.lower()
+        self.driver = webdriver.Remote(
+            command_executor=fr"http://{btype}:4444/wd/hub",
+            desired_capabilities=DesiredCapabilities.CHROME
+        )
         self.driver.implicitly_wait(5)
         return self.driver
 
@@ -50,7 +44,8 @@ class Login:
         sleep(2)
 
     def logout(self):
-        self.driver.execute_script("$(arguments[0]).click()", self.driver.find_element_by_css_selector('.logout'))
+        self.driver.execute_script(
+            "$(arguments[0]).click()", self.driver.find_element_by_css_selector('.logout'))
         sleep(2)
 
 
