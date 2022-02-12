@@ -6,7 +6,7 @@
 from time import sleep
 from hytest import *
 from lib.exam_paper import studentExam
-from lib.loginTs import login_1
+from lib.loginTs import login
 from lib.ReadExcel import read_excel_paper
 from config.config import AccountConfig, UrlBase
 
@@ -25,15 +25,15 @@ def make_ddt():
 def suite_setup():
     INFO('发布作业用例文件初始化')
     STEP(1, '学生登录')
-    login_1.login(AccountConfig.student[0],
-                  AccountConfig.student[1], UrlBase.login_url)
+    login.login(AccountConfig.student[0],
+                AccountConfig.student[1], UrlBase.login_url)
     sleep(0.5)
 
 
 def suite_teardown():
     INFO('退出登录')
     sleep(0.5)
-    login_1.logout()
+    login.logout()
 
 
 class Test_:
@@ -68,5 +68,3 @@ class Test_:
         CHECK_POINT('练习结果查看正确', ret)
 
 
-if __name__ == "__main__":
-    run_code = 0

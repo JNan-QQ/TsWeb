@@ -13,15 +13,25 @@ from msedge.selenium_tools import Edge, EdgeOptions
 
 
 class Login:
-    driver: webdriver.Edge = None
+    driver = None
 
     def open_browser(self, BrowserDriver):
         btype = BrowserDriver.browser_kernel
         print(btype)
         btype = btype.lower()
+        options = webdriver.ChromeOptions()
+        # 指定浏览器分辨率
+        options.add_argument('window-size=1920x3000')
+        # 谷歌文档提到需要加上这个属性来规避bug
+        options.add_argument('--disable-gpu')
+        # 浏览器不提供可视化页面. linux下如果系统不支持可视化不加这条会启动失败
+        options.add_argument('--headless')
+        options.add_argument('--ignore-ssl-errors=yes')
+        options.add_argument('--ignore-certificate-errors')
         self.driver = webdriver.Remote(
             command_executor=fr"http://{btype}:4444/wd/hub",
-            desired_capabilities=DesiredCapabilities.CHROME
+            desired_capabilities=DesiredCapabilities.CHROME,
+            options=options
         )
         self.driver.implicitly_wait(5)
         return self.driver
@@ -50,7 +60,4 @@ class Login:
 
 
 login = Login()
-login_1 = Login()
 
-if __name__ == "__main__":
-    pass
