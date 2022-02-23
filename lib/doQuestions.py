@@ -96,7 +96,7 @@ def mysql_content_format(xml_str):
     sa = root.findall('Sa')
     if sa:
         sa_q = re.findall(r'\((.*?\.mp3)\)\(\d+\)\(\d+\)', sa[0].text, re.S)
-        sa_q = [i for i in sa_q if i != '1.mp3']
+        sa_q = [i for i in sa_q if i not in ['1.mp3', '0.mp3']]
     else:
         sa_q = []
 
@@ -183,10 +183,13 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
             if mysql_connect['情景问答'] != [web_sh, web_sa]:
                 if web_sh != mysql_connect['情景问答'][0]:
                     CHECK_POINT('----比对问答题目音频 - 题目', False)
-                for web_sa_i in web_sa:
-                    if web_sa_i not in mysql_connect['情景问答'][1]:
-                        CHECK_POINT('----比对问答题目音频 - 音频', False)
-                        break
+                if web_sa == [] or mysql_connect['情景问答'][1] == []:
+                    CHECK_POINT('----未找到mysql/web音频数据', False)
+                else:
+                    for web_sa_i in web_sa:
+                        if web_sa_i not in mysql_connect['情景问答'][1]:
+                            CHECK_POINT('----比对问答题目音频 - 音频', False)
+                            break
             else:
                 CHECK_POINT('----比对问答题目音频', True)
 

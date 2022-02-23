@@ -98,6 +98,8 @@ def getEqualRate(web1, mysql1):
             return False
     else:
         try:
+            if len(web1) == 0 or len(mysql1) == 0:
+                return False
             for i in range(len(web1)):
                 if web1[i] in ['—', '— ']:
                     continue
