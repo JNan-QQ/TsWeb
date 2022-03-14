@@ -197,46 +197,49 @@ class StudentExam:
         save_n = 0
         mp3_n = 0
         num_n = 0
+        err_flg = False
         while True:
             try:
+                print(mp3_n)
                 msg_info = self.driver.find_element_by_css_selector('.message-info')
                 if msg_info.text == '目前有音频未识别，请等待判分。':
                     mp3_n += 1
-                    if mp3_n == 20:
+                    if mp3_n == 6:
+                        err_flg = True
                         CHECK_POINT('录音判分成功', False)
-                        break
                 elif msg_info.text == '记录保存成功':
                     for button in self.driver.find_elements_by_css_selector('.ui-button-text'):
                         if button.text == '我知道':
                             button.click()
                             continue
-                    break
+                    err_flg = True
                 else:
                     save_n += 1
                     sleep(0.5)
 
                 if save_n > 10:
-                    CHECK_POINT('作业提交失败', False)
-                    break
+                    err_flg = True
+                    CHECK_POINT('作业提交成功', False)
                 elif self.driver.find_elements_by_css_selector('.ui-dialog .zeroTips p'):
                     for button in self.driver.find_elements_by_css_selector('.ui-button-text'):
                         if button.text == '继续提交':
                             button.click()
                             sleep(0.5)
-                            continue
+                            break
                     for button in self.driver.find_elements_by_css_selector('.ui-button-text'):
                         if button.text == '提交':
                             button.click()
-                            continue
+                            break
                 sleep(0.5)
             except:
                 num_n += 1
                 if num_n > 10:
                     SELENIUM_LOG_SCREEN(self.driver, width='70%')
+                    err_flg = True
                     CHECK_POINT('作业提交失败', False)
-                    print('作业提交失败')
-                    break
                 sleep(0.5)
+            if err_flg:
+                break
         print('\n\n')
 
         return True
