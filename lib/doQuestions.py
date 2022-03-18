@@ -142,7 +142,8 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
     if mysql_connect['题目短文2']:
         # print('开始比对短文2')
         idx_web2 = [re.sub(r'\(\d+\)', '()', i.text) for i in
-                    elem.find_elements_by_css_selector('.text_content p:not(.idx , .Mid)') if i.text]
+                    elem.find_elements_by_css_selector('.text_content p:not(.idx , .Mid), .test_empty_content>p') if
+                    i.text]
         idx_web2 = [re.sub(r'__\d+__', '____', i) for i in idx_web2 if not i.isspace()]
         CHECK_POINT('----对比题目短文2是否相同', getEqualRate(idx_web2, mysql_connect['题目短文2']))
 
@@ -173,7 +174,7 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
             # print('开始比对音频2')
 
             web_sh = [i.get_attribute('innerText') for i in
-                      elem.find_elements_by_css_selector('.china_q .china_question')]
+                      elem.find_elements_by_css_selector('.china_question')]
             web_sh = [re.sub(r'^[0-9]\.', '', i) for i in web_sh]
 
             web_sa = [i.get_attribute('data-mp3') for i in
@@ -182,6 +183,7 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
             INFO([web_sh, web_sa])
             if mysql_connect['情景问答'] != [web_sh, web_sa]:
                 if web_sh != mysql_connect['情景问答'][0]:
+                    print(web_sh, mysql_connect['情景问答'][0])
                     CHECK_POINT('----比对问答题目音频 - 题目', False)
                 if web_sa == [] or mysql_connect['情景问答'][1] == []:
                     CHECK_POINT('----未找到mysql/web音频数据', False)
