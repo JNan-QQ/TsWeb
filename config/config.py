@@ -71,3 +71,6 @@ class QType:
 
     # 填空题
     blank = config_dict['QType']['blank']
+
+    # 下拉选择
+    select = config_dict['QType']['select']

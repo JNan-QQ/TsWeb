@@ -71,6 +71,7 @@ def mysql_content_format(xml_str):
 
     # 提取小题 - web: class = question_content
     qs = root.findall('./Qs')
+    qs += root.findall('./nop/Qs')
 
     question = []
     for q_q in qs:
@@ -236,7 +237,7 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
                     for iii in range(len(ques_mysql_list[ii][1])):
                         sends_input[iii].send_keys(ques_mysql_list[ii][1][iii])
 
-                elif ques_type in ['1700', '3000']:
+                elif ques_type in QType.select:
                     select = Select(ques_web_list[ii].find_element_by_css_selector("select"))
                     select.select_by_index(ques_mysql_list[ii][1][0])
 
@@ -245,6 +246,9 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
 
     elif ques_type in ['2700']:
         elem.find_element_by_css_selector('textarea').send_keys('[cs] [jiangnan] [zdh]')
+
+    else:
+        INFO('没有问题答案')
 
     return True
 
