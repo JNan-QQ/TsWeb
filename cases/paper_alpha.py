@@ -3,6 +3,7 @@
 # @Time      :2021/8/17 9:25
 # @Author    :姜楠
 # @Tool      :PyCharm
+import sys
 from time import sleep
 from hytest import *
 from lib.exam_paper import studentExam
@@ -54,6 +55,9 @@ class Test_:
 
         STEP(3, f'查找试卷 {paper_name}')
         ret = studentExam.chosePaper(paper_name, mode, paper_id, UrlBase.start_url)
+        if ret == '账号已过期':
+            print('账号服务已过期,请登录 www.zdhua.top 查看！')
+            sys.exit()
         CHECK_POINT('查找到试卷', ret)
 
         STEP(4, '学生练习试卷')

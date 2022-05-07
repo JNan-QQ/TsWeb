@@ -91,7 +91,7 @@ class StudentExam:
 
     def chosePaper(self, paper_name, mode, paper_id='', start_url=''):
         if not verfCode.simpleCheck():
-            return False
+            return '账号已过期'
 
         if paper_id:
             types_list = ['ts', 'bs']
