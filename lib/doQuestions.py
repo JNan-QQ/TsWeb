@@ -5,7 +5,7 @@
 # @Tool      :PyCharm
 import re
 
-from hytest import *
+from hytest import INFO, CHECK_POINT
 from selenium import webdriver
 # 导入Select类
 from selenium.webdriver.support.ui import Select

@@ -57,7 +57,7 @@ def read_excel_paper(excel_path=None):
         book = xlrd.open_workbook(
             os.path.join(os.path.abspath(__file__ + os.path.sep + ".." + os.path.sep + ".."), 'config', 'cases.xlsx'))
     # 获取名为cases的表单对象
-    sheet = book.sheet_by_name('cases_paper')
+    sheet = book.sheet_by_name('cases')
     # 行数
     nums = sheet.nrows
     cases_dict = {}

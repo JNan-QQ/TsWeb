@@ -3,10 +3,11 @@
 # @Time      :2021/7/23 15:04
 # @Author    :姜楠
 # @Tool      :PyCharm
+import os
 
 import win32com.client
 import xlrd
-from hytest import *
+from hytest import INFO, GSTORE, STEP, signal
 
 from config.config import getCaseConfigData
 from lib.loginTs import login_student

@@ -5,7 +5,7 @@
 # @Tool      :PyCharm
 from time import sleep
 
-from hytest import *
+from hytest import STEP, CHECK_POINT, INFO, GSTORE
 
 from config.config import getCaseConfigData
 from lib.ReadExcel import read_excel_paper

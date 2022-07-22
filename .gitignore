@@ -1,6 +1,6 @@
 .idea
 /log
 *.pyc
-tool
 *.xlsx
 /config/config.db
+.env

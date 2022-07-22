@@ -81,7 +81,7 @@ class Login:
         sleep(2)
 
 
-login_teacher = Login()
+# login_teacher = Login()
 login_student = Login()
 
 if __name__ == "__main__":

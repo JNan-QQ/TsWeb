@@ -6,7 +6,7 @@
 import re
 from time import sleep
 
-from hytest import *
+from hytest import INFO, CHECK_POINT, SELENIUM_LOG_SCREEN
 from selenium import webdriver
 from selenium.common import exceptions as s_exceptions
 from selenium.webdriver.support import expected_conditions, ui
