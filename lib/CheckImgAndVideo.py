@@ -5,7 +5,6 @@
 # @Tool      :PyCharm
 import difflib
 from hytest import INFO
-import os
 import requests
 
 """
@@ -17,7 +16,8 @@ PNG文件结尾标识：\xaeB`\x82
 
 
 class ImageCheck:
-    def checkImage(self, image_path=None, image_steam=None):
+    @staticmethod
+    def checkImage(image_path=None, image_steam=None):
         type_dict = {
             'jpg': [b'\xff\xd8', b'\xff\xd9'],
             'png': [b'\x89PNG', b'\xaeB`\x82'],
@@ -34,15 +34,13 @@ class ImageCheck:
                 return [data[:4], data[-4:]] == type_dict[file_type]
 
         if image_steam:
-            data = image_steam
-            flg = False
-            if [data[:2], data[-2:]] == type_dict['jpg']:
-                flg = True
-            elif [data[:4], data[-4:]] == type_dict['png']:
-                flg = True
-            return flg
+            if [image_steam[:2], image_steam[-2:]] == type_dict['jpg'] or [image_steam[:4], image_steam[-4:]] == type_dict['png']:
+                return True
+            else:
+                return False
 
-    def DownloadImage(self, image_url):
+    @staticmethod
+    def DownloadImage(image_url):
         print(image_url)
         response = requests.get(image_url)
         if response.status_code == 200:
@@ -57,7 +55,8 @@ class ImageCheck:
         else:
             return ret
 
-    def check_name(self, web_img, mysql_img):
+    @staticmethod
+    def check_name(web_img, mysql_img):
         web_img = [i.split('/')[-1] for i in web_img]
         for i in mysql_img:
             if i not in web_img:

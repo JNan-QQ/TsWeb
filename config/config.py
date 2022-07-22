@@ -3,74 +3,74 @@
 # @Time      :2021/8/10 10:35
 # @Author    :姜楠
 # @Tool      :PyCharm
-import os
-import requests
-from hytest import *
-from lib.VerificationCode import verfCode
+from lib.Mysql_Read import sqlite3Link
 
 
-def getConfig():
-    verfCode.login()
-    session: requests.Session = GSTORE['session']
+class getData:
 
-    configDict = session.post(f'https://{verfCode.host}/api/pay/user', json={
-        'action': 'listServerConfig',
-    })
+    def __init__(self):
+        values = sqlite3Link.select_table('info', None, 'value')
+        self.env = values[1][0]
+        self.browser = values[0][0]
+        self.Url = self.getUrl()
+        self.Account = self.getAccount()
+        self.Browser = self.getBrowser()
+        self.QType = self.getQType()
+        self.MysqlLinkInfo = self.getMysqlLinkInfo()
 
-    return configDict.json()['userServerConfig']
+    # 链接信息
+    def getUrl(self):
+
+        if self.env == 'rc':
+            host_url = 'https://www.waiyutong.org'
+        elif self.env == 'beta':
+            host_url = 'https://www-beta.waiyutong.org'
+        else:
+            username = sqlite3Link.select_table('account_info', 'user_type="branch"', 'username')[0][0]
+            host_url = f'https://{username}-www.b.waiyutong.org'
+
+        student_host = host_url.replace('www', 'student')
+        # 模块链接
+        mode_url = {'人机对话': f'{student_host}/Paper/renjiduihua.html', '笔试考场': f'{student_host}/Paper/bishi.html',
+                    '外语通作业': f'{student_host}/Homework/lists.html'}
+        # 练习界面链接
+        exam_host = student_host + '/Practice'
+        exam_url = [
+            exam_host + '/paperPractice.html?type=ts&mode=free&version=1&grade=%s&id=%s',
+            exam_host + '/paperPractice.html?type=bs&mode=free&version=1&grade=%s&id=%s',
+            exam_host + '/homework.html?mode=free&grade=%s&hid=%s'
+        ]
+
+        return {'login_url': host_url, 'mode_url': mode_url, 'exam_url': exam_url}
+
+    def getAccount(self):
+        values = sqlite3Link.select_table('account_info', f'branch_type="{self.env}"')
+        account = {}
+        for item in values:
+            account[item[3]] = [item[1], item[2]]
+        return account
+
+    def getBrowser(self):
+        values = sqlite3Link.select_table('webdriver', f'browser_type="{self.browser}"')
+        if not values:
+            return
+        else:
+            return {'browser_type': values[0][1], 'browser_path': values[0][2], 'driver_path': values[0][3],
+                    'default': values[0][4]}
+
+    @staticmethod
+    def getQType():
+        values = sqlite3Link.select_table('topicType')
+        qType = {}
+        for item in values:
+            qType[item[1]] = item[2].strip().split(',')
+        qType['speak'] = qType['read_aloud'] + qType['situation_dialogue'] + qType['topic_brief']
+        return qType
+
+    def getMysqlLinkInfo(self):
+        conf = \
+            sqlite3Link.select_table('mysql_link_info', f'name="{self.env}"', 'host', 'port', 'user', 'passwd', 'db')[0]
+        return conf
 
 
-config_dict = getConfig()
-
-
-# url配置
-class UrlBase:
-    username = config_dict['UrlBase']['username']
-    login_url = fr'https://{username}-www.b.waiyutong.org/'
-    mode_url = [fr'http://{username}-student.b.waiyutong.org/Paper/renjiduihua.html',
-                fr'http://{username}-student.b.waiyutong.org/Paper/bishi.html',
-                fr'http://{username}-student.b.waiyutong.org/Practice/papers.html']
-    start_url = config_dict['UrlBase']['start_url']
-
-
-# 账号信息
-class AccountConfig:
-    # 老师账号信息
-    teacher = config_dict['AccountConfig']['teacher']
-    student = config_dict['AccountConfig']['student']
-
-
-# 测试用例cases配置
-class CasesConfig:
-    # 用例编号在文件xlsx下的列数
-    case_No = config_dict['CasesConfig']['case_No']
-    # 测试用例结果在文件xlsx下的列数
-    case_result = config_dict['CasesConfig']['case_result']
-    # 测试用例文件路径，不用修改
-    cases_path = config_dict['CasesConfig']['cases_path']
-
-
-# 浏览器与驱动
-class BrowserDriver:
-    browser_kernel = config_dict['BrowserDriver']['browser_kernel']
-    # 浏览器驱动路径
-    driver_path = config_dict['BrowserDriver']['driver_path']
-    # 浏览器路径
-    browser_path = config_dict['BrowserDriver']['browser_path']
-
-
-# lib配置
-class LibConfig:
-    mysqlAlpha = config_dict['LibConfig']['mysqlAlpha']
-    mysqlBeta = config_dict['LibConfig']['mysqlBeta']
-
-
-class QType:
-    # 选择题
-    opt = config_dict['QType']['opt']
-
-    # 填空题
-    blank = config_dict['QType']['blank']
-
-    # 下拉选择
-    select = config_dict['QType']['select']
+getCaseConfigData = getData()

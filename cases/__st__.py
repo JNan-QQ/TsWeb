@@ -3,31 +3,31 @@
 # @Time      :2021/7/23 15:04
 # @Author    :姜楠
 # @Tool      :PyCharm
-from config.config import CasesConfig
+
 import win32com.client
 import xlrd
 from hytest import *
-from lib.loginTs import login_1
-from lib.VerificationCode import verfCode
-from config.config import BrowserDriver
+
+from config.config import getCaseConfigData
+from lib.loginTs import login_student
 
 
 def suite_setup():
     INFO('套件目录初始化')
-    STEP(1, '登录')
-    STEP(2, '打开浏览器')
-    GSTORE['driver1'] = login_1.open_browser(BrowserDriver)
+    STEP(1, '打开浏览器')
+    login_student.open_browser(getCaseConfigData.Browser)
+    GSTORE['driver_student'] = login_student.driver
 
 
 def suite_teardown():
     INFO('套件目录清除')
     STEP(1, '关闭浏览器')
-    login_1.close_browser()
-    verfCode.logout()
+    login_student.close_browser()
 
 
 class MySignalHandler:
-    TEST_RET_COL_NO = CasesConfig.case_result  # 测试结果在用例excel文件中的列数
+    TEST_RET_COL_NO = 7  # 测试结果在用例excel文件中的列数
+    cases_path = os.path.join(os.getcwd(), 'config', 'cases.xlsx')
 
     def __init__(self):
         self.caseNum2Row = {}  # 用例编号->行数 表
@@ -35,7 +35,7 @@ class MySignalHandler:
 
         self.excel = win32com.client.Dispatch("Excel.Application")
         self.excel.Visible = True
-        workbook = self.excel.Workbooks.Open(CasesConfig.cases_path)
+        workbook = self.excel.Workbooks.Open(self.cases_path)
         self.sheet = workbook.Sheets(1)
 
     def getCaseNum2RowInExcel(self):
@@ -43,7 +43,7 @@ class MySignalHandler:
         得到Excel 中用例 编号对应的行数，方便填写测试结果
         """
 
-        book = xlrd.open_workbook(CasesConfig.cases_path)
+        book = xlrd.open_workbook(self.cases_path)
         sheet = book.sheet_by_index(0)
         caseNumbers = sheet.col_values(colx=0)
         print(caseNumbers)
@@ -77,7 +77,8 @@ class MySignalHandler:
             elif case.execRet == 'abort':
                 cell.Value = 'abort'
 
-    def test_end(self, runner):
+    @staticmethod
+    def test_end(runner):
         """
         test_end 是 整个测试执行完 ，会调用的函数
 

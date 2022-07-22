@@ -5,40 +5,65 @@
 # @Tool      :PyCharm
 
 from time import sleep
-from selenium import webdriver
-from config.config import AccountConfig, UrlBase
+
 from msedge.selenium_tools import Edge, EdgeOptions
+from selenium import webdriver
 
 
 class Login:
     driver: webdriver.Edge = None
 
     def open_browser(self, BrowserDriver):
-        btype = BrowserDriver.browser_kernel
-        print(btype)
-        if btype == 'Edge':
-            options = EdgeOptions()
-            options.use_chromium = True
-            options.add_experimental_option('excludeSwitches', ['enable-automation', 'enable-logging'])
-            self.driver = Edge(BrowserDriver.driver_path, options=options)
-        elif btype in ['Chrome', 'Ie', 'FireFox']:
-            options = getattr(webdriver, f'{btype}Options')()
-            options.add_experimental_option('excludeSwitches', ['enable-automation', 'enable-logging'])
-            options.binary_location = BrowserDriver.browser_path
-            self.driver = getattr(webdriver, btype)(BrowserDriver.driver_path, options=options)
+        # 未指定浏览器，默认打开谷歌浏览器
+        if not BrowserDriver:
+            print('使用默认谷歌浏览器')
+            self.driver = webdriver.Chrome()
         else:
-            print('浏览器类型输入有误!!!')
+            # 浏览器类型
+            browser_btype = BrowserDriver['browser_type']
+            # Edge
+            if browser_btype == 'Edge':
+                if BrowserDriver['default']:
+                    print('使用edge浏览器默认配置')
+                    self.driver = webdriver.Edge()
+                else:
+                    options = EdgeOptions()
+                    options.use_chromium = True
+                    options.add_experimental_option('excludeSwitches', ['enable-automation', 'enable-logging'])
+                    options.binary_location = BrowserDriver['browser_path']
+                    self.driver = Edge(BrowserDriver['driver_path'], options=options)
+            elif browser_btype == 'Chrome':
+                if BrowserDriver['default']:
+                    print('使用chrome浏览器默认配置')
+                    self.driver = webdriver.Chrome()
+                else:
+                    options = webdriver.ChromeOptions()
+                    options.add_experimental_option('excludeSwitches', ['enable-automation', 'enable-logging'])
+                    options.binary_location = BrowserDriver['browser_path']
+                    self.driver = webdriver.Chrome(BrowserDriver['driver_path'], options=options)
+            else:
+                print('目前仅支持 谷歌、Edge 浏览器！')
+                return None
+
         self.driver.maximize_window()
         self.driver.implicitly_wait(5)
-        return self.driver
 
     def close_browser(self):
         self.driver.quit()
 
-    def login(self, username, password, url=UrlBase.login_url):
+    def login(self, user=('waiyan', '123456lj'), url='https://jiangnan-www.b.waiyutong.org/'):
         # 输入网站
         self.driver.get(url)
         # 输入用户名与密码
+        if isinstance(user, (list, tuple)):
+            username = user[0]
+            password = user[1]
+        elif isinstance(user, dict):
+            username = user['username']
+            password = user['password']
+        else:
+            print('账号信息有误！！！')
+            return
         user_input = self.driver.find_element_by_id('username_field')
         user_input.clear()
         user_input.send_keys(username)
@@ -47,15 +72,17 @@ class Login:
         pass_input.send_keys(password)
         # 确认登录
         self.driver.find_element_by_css_selector('.te_login').click()
-        sleep(2)
+        # 等待登录成功
+        while not self.driver.find_elements_by_css_selector('.uname'):
+            sleep(2)
 
     def logout(self):
         self.driver.execute_script("$(arguments[0]).click()", self.driver.find_element_by_css_selector('.logout'))
         sleep(2)
 
 
-login = Login()
-login_1 = Login()
+login_teacher = Login()
+login_student = Login()
 
 if __name__ == "__main__":
     pass

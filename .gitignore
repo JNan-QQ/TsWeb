@@ -3,3 +3,4 @@
 *.pyc
 tool
 *.xlsx
+/config/config.db

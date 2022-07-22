@@ -4,43 +4,39 @@
 # @Author    :姜楠
 # @Tool      :PyCharm
 import re
-import traceback
 from time import sleep
+
 from hytest import *
 from selenium import webdriver
+from selenium.common import exceptions as s_exceptions
+from selenium.webdriver.support import expected_conditions, ui
+
+from config.config import getCaseConfigData
 from lib.doQuestions import main_handler
-from selenium.webdriver.support.ui import Select
-from config.config import UrlBase
-from lib.loginTs import login
-from lib.VerificationCode import verfCode
 
 
 class StudentExam:
-    mode_url = UrlBase.mode_url
-    mode_name = ['人机对话', '笔试考场', '单元测试']
+    mode_url = getCaseConfigData.Url['mode_url']
+    mode_name = ['人机对话', '笔试考场', '外语通作业']
     driver = None
 
-    def getExamPage(self, driver, mode=1, url=None):
+    def getExamPage(self, driver, mode):
         sleep(1)
         INFO(f'进入{self.mode_name[mode - 1]}界面')
         self.driver: webdriver.Edge = driver
-        if url:
-            self.driver.get(url)
-        else:
-            self.driver.get(self.mode_url[mode - 1])
+        # 进入试卷列表界面
+        self.driver.get(self.mode_url[self.mode_name[mode - 1]])
 
-        try:
-            sleep(0.5)
-            self.driver.switch_to.alert.accept()
-            sleep(1)
-        except:
-            sleep(1)
+        sleep(0.5)
+        jump_alert = expected_conditions.alert_is_present()(self.driver)
+        if jump_alert:
+            jump_alert.accept()
 
         return True
 
-    def choseGrade(self, grade, unit, paper_id=''):
+    def choseGrade(self, grade, paper_id=None):
 
-        if paper_id:
+        if paper_id or not grade:
             return True
 
         grades = {
@@ -72,212 +68,152 @@ class StudentExam:
 
         }
         # 选择年级
-        select = Select(
+        select = ui.Select(
             self.driver.find_element_by_css_selector('.book_unit_select_cnt .book_unit_select.current .book_select'))
         # 通过 Select 对象选中
-        # print(grades[grade])
         select.select_by_visible_text(grades[grade])
         sleep(0.5)
 
-        # 选择单元
-        if unit:
-            select_unit = Select(
-                self.driver.find_element_by_css_selector(
-                    '.book_unit_select_cnt .book_unit_select.current .unit_cnt.current .unit_select'))
-            select_unit.select_by_visible_text(unit)
-            sleep(0.5)
-
         return True
 
-    def chosePaper(self, paper_name, mode, paper_id='', start_url=''):
-        if not verfCode.simpleCheck():
-            return '账号已过期'
+    def chosePaper(self, paper_name, mode, paper_id=None, grade_type=13):
 
         if paper_id:
-            types_list = ['ts', 'bs']
-            self.driver.get(
-                fr'https://{UrlBase.username}-student.b.waiyutong.org/Practice/paperPractice.html?type={types_list[mode - 1]}&mode=free&id={paper_id}&province_id=11&city_id=22&version=3&grade=18')
+            self.driver.get(getCaseConfigData.Url['exam_url'][mode - 1] % (grade_type, int(paper_id)))
             return True
 
-        list1 = ['.rjdh_paper_title', '.bishi_paper_title', '.unit_paper_title']
-        # 进入开始页面
-        if start_url:
-            self.driver.get(start_url)
-            sleep(2)
+        mode_paper_title = ['.rjdh_paper_title', '.bishi_paper_title', '.homework_title']
 
         while True:
-            flg = False
             sleep(2)
-            if mode == 3:  # 单元练习
-                papers = self.driver.find_elements_by_css_selector('.unit_paper')
+            papers = self.driver.find_elements_by_css_selector('.list_container')
+            for paper_item in papers:  # 人机对话、笔试考场、网络作业
+                if paper_name == paper_item.find_element_by_css_selector(mode_paper_title[mode - 1]).text:
+                    paper_item.find_element_by_css_selector('.remain_status_btn a:nth-child(1)').click()
+                    return True
             else:
-                papers = self.driver.find_elements_by_css_selector('.list_container')
-            for i in papers:  # 人机对话、笔试考场
-                if paper_name == i.find_element_by_css_selector(list1[mode - 1]).text:
-                    if mode == 3:  # 单元练习
-                        i.find_element_by_css_selector('.unit_paper_button_box a:nth-child(1)').click()
-                    else:  # 人机对话、笔试考场
-                        i.find_element_by_css_selector('.remain_status_btn a:nth-child(1)').click()
-                    flg = True
-                    break
-            else:
-                btn = self.driver.find_element_by_css_selector('a.next')
-                self.driver.execute_script("$(arguments[0]).click()", btn)
-                sleep(5)
-
-            if flg:
-                break
-        return True
+                btn = self.driver.find_elements_by_css_selector('a.next')
+                if btn:
+                    self.driver.execute_script("$(arguments[0]).click()", btn[0])
+                else:
+                    return False
 
     def doPaper(self, paper_name):
         # 等待试卷加载
         sleep(1.5)
+        wait_time = 0
         while True:
             try:
                 self.driver.find_element_by_css_selector('.p_answerSubmit_btn').click()
                 self.driver.find_element_by_css_selector('button.ui-button').click()
                 break
-            except:
-                flg_err = False
-                try:
-                    err_info = self.driver.find_elements_by_css_selector('.message-info')
-                    if err_info:
-                        if '参数有误或服务器出现异常' in err_info[0].text:
-                            flg_err = True
-                            INFO('参数有误或服务器出现异常，SERVER_NO:B-jiangnan')
-                            SELENIUM_LOG_SCREEN(self.driver, width='70%')
-                            CHECK_POINT(f'试卷加载 - {paper_name}', False)
-                    self.driver.find_element_by_css_selector('button.ui-button').click()
-                    sleep(1)
-                except:
-                    if flg_err:
-                        return False
-        sleep(1)
+            except s_exceptions.ElementClickInterceptedException:
+                wait_time += 1
+                if wait_time > 20:
+                    SELENIUM_LOG_SCREEN(self.driver, width='70%')
+                    CHECK_POINT(f'试卷加载 - {paper_name}', False)
+                    return False
+                sleep(1)
+            except s_exceptions.NoSuchElementException:
+                CHECK_POINT(f'试卷加载 - {paper_name}', False)
+                return False
+
+        # 判断试卷⏲是否可用
+        sleep(3)
+        hour = self.driver.find_element_by_css_selector('.countdown_hour').text
+        minute = self.driver.find_element_by_css_selector('.countdown_minute').text
+        second = self.driver.find_element_by_css_selector('.countdown_second').text
+        homework_do_time = int(hour) * 3600 + int(minute) * 60 + int(second)
+        if homework_do_time == 0:
+            INFO('试卷⏲是不可用，可能试卷缺少资源，打开F12查看')
+            return False
+
+        # 查找题目
         ques_list = self.driver.find_elements_by_css_selector('.test_content')
         if not ques_list:
             SELENIUM_LOG_SCREEN(self.driver, width='70%')
-            return '没有找到题目'
-        n = 1
-        for ques in ques_list:
+            INFO('该试卷无题目')
+            return False
+
+        # 循环答题
+        for index, ques in enumerate(ques_list):
             ques_id = ques.get_attribute('data-id')
             ques_type = ques.get_attribute('data-type')
-            INFO(f'进行第{n}题试题作答、判断')
-            print(f'进行第{n}题试题作答、判断')
+            INFO(f'-- 进行第 {index + 1} 大题试题作答、判断\n\n')
+            print(f'-- 进行第 {index + 1} 大题试题作答、判断')
             try:
-                # student_do_homework.quesHandler(ques_id, ques_type, ques, self.driver)
-                main_handler(ques_id, ques_type, self.driver, ques)
-                print(f'第{n}题试题作答、判断完成！！！')
-            except:
-                traceback.print_exc()
-                # SELENIUM_LOG_SCREEN(self.driver, width='70%')
-                print(f'第{n}题试题作答、判断失败？？？')
-                pass
-            print('\n')
-            INFO('\n\n')
+                main_handler(int(ques_id), ques_type, self.driver, ques)
+                INFO(f'-- 第 {index + 1} 大题试题作答、判断完成！！！\n\n')
+            except Exception as e:
+                INFO(f'-- 第 {index + 1} 大题试题作答、判断失败？？？\n\n')
+                INFO(e)
             sleep(0.3)
-            n += 1
 
-        # 等待音频播放完毕
-        # while True:
-        #     try:
-        #         mp3s = self.driver.find_element_by_css_selector('.test_ctrl_info_area').get_attribute('style')
-        #         if mp3s != 'display: block;':
-        #             break
-        #     except:
-        #         sleep(5)
+        return True
 
-        sleep(1)
+    def submitHomework(self, mode):
+        # 外语通作业至少需要答题90s
+        if mode == 3:
+            while True:
+                hour = self.driver.find_element_by_css_selector('.countdown_hour').text
+                minute = self.driver.find_element_by_css_selector('.countdown_minute').text
+                second = self.driver.find_element_by_css_selector('.countdown_second').text
+                homework_do_time = int(hour) * 3600 + int(minute) * 60 + int(second)
+                homework_need_time = self.driver.find_element_by_css_selector('.p_paper_cnt').get_attribute(
+                    'data-need-time')
+                if 95 < int(homework_need_time) * 3600 - homework_do_time < int(homework_need_time) * 3600 - 95:
+                    break
+                sleep(5)
+
         # 点击提交按钮
         self.driver.find_element_by_css_selector('.p_answerSubmit_btn').click()
         sleep(0.5)
         # 确认提交
-        self.driver.find_element_by_css_selector('.ui-dialog-buttonset button:nth-child(2)').click()
+        self.driver.find_element_by_xpath('//*[@class="ui-button-text"][text()="保存答案"]').click()
         sleep(0.5)
-        # 判断录音是否判断完成,提交完成
-        save_n = 0
-        mp3_n = 0
-        num_n = 0
-        err_flg = False
+
+        # 提交后的几种状态
+        submit_time = 0
         while True:
-            try:
-                print(mp3_n)
-                msg_info = self.driver.find_element_by_css_selector('.message-info')
-                if msg_info.text == '目前有音频未识别，请等待判分。':
-                    mp3_n += 1
-                    if mp3_n == 6:
-                        err_flg = True
-                        CHECK_POINT('录音判分成功', False)
-                elif msg_info.text == '记录保存成功':
-                    for button in self.driver.find_elements_by_css_selector('.ui-button-text'):
-                        if button.text == '我知道':
-                            button.click()
-                            continue
-                    err_flg = True
-                else:
-                    save_n += 1
-                    sleep(0.5)
+            msg_info = self.driver.find_element_by_css_selector('.message-info').text
+            if msg_info == '数据计算中...':
+                sleep(2)
+            elif msg_info == '目前有音频未识别，请等待判分。':
+                if self.driver.find_elements_by_css_selector('.zeroTips[style*="display"]'):
+                    # 继续提交
+                    self.driver.find_element_by_xpath('//*[@class="ui-button-text"][text()="继续提交"]').click()
+            elif msg_info == '音频已全部识别完成，是否提交答案？':
+                self.driver.find_element_by_xpath('//*[@class="ui-button-text"][text()="提交"]').click()
+            elif msg_info == '记录保存成功':
+                self.driver.find_element_by_xpath('//*[@class="ui-button-text"][text()="我知道了"]').click()
+                return True
+            else:
+                return False
+            sleep(2)
 
-                if save_n > 10:
-                    err_flg = True
-                    CHECK_POINT('作业提交成功', False)
-                elif self.driver.find_elements_by_css_selector('.ui-dialog .zeroTips p'):
-                    for button in self.driver.find_elements_by_css_selector('.ui-button-text'):
-                        if button.text == '继续提交':
-                            button.click()
-                            sleep(0.5)
-                            break
-                    for button in self.driver.find_elements_by_css_selector('.ui-button-text'):
-                        if button.text == '提交':
-                            button.click()
-                            break
-                sleep(0.5)
-            except:
-                num_n += 1
-                if num_n > 10:
-                    SELENIUM_LOG_SCREEN(self.driver, width='70%')
-                    err_flg = True
-                    CHECK_POINT('作业提交失败', False)
-                sleep(0.5)
-            if err_flg:
-                break
-        print('\n\n')
+            # 提交超时
+            submit_time += 2
+            if submit_time > 60:
+                return False
 
-        return True
+    def checkResult(self, mode):
+        if mode == 3:
+            web_s_score = self.driver.find_element_by_css_selector('.composition_homework_not>span').text
+            web_n_score = self.driver.find_element_by_css_selector('.p_paper_cnt').get_attribute('data-tatol-score')
+            right = ['外语通作业暂不判断']
+            wrong = ['外语通作业暂不判断']
+        else:
+            right = [i.text for i in self.driver.find_elements_by_css_selector('.answer_list_right_class')]
+            wrong = [i.text for i in self.driver.find_elements_by_css_selector('.answer_list_wrong_class')]
+            web_score = self.driver.find_element_by_css_selector('.p_paper_nature  ul').text
+            web_s_score, web_n_score = re.findall(r'得分：(\d+).*?满分：(\d+)', web_score, re.S)[0]
 
-    def checkResult(self):
-        right = [i.text for i in self.driver.find_elements_by_css_selector('.answer_list_right_class')]
-        wrong = [i.text for i in self.driver.find_elements_by_css_selector('.answer_list_wrong_class')]
         INFO(f'答对的题目序号：{right}')
         INFO(f'答错的题目序号：{wrong}')
-
-        question_score = {}
-        if question_score:
-            s_score = sum([question_score[i] for i in right])
-            n_score = sum([question_score[i] for i in question_score])
-            print(f'学生应得分：{s_score}，试卷总分（应该）：{n_score}')
-
-        web_score = self.driver.find_element_by_css_selector('.p_paper_nature  ul').text
-        print(web_score)
-        web_s_score, web_n_score = re.findall(r'得分：(\d+).*?满分：(\d+)', web_score, re.S)[0]
         print(f'学生实际得分：{web_s_score}，试卷实际总分：{web_n_score}')
         INFO(f'学生实际得分：{web_s_score}，试卷实际总分：{web_n_score}')
-
-        # CHECK_POINT('检查学生得分是否正确', s_score == int(web_s_score))
-        # CHECK_POINT('检查试卷总分是否正确', n_score == int(web_n_score))
 
         return True
 
 
 studentExam = StudentExam()
-
-if __name__ == "__main__":
-    from config.config import BrowserDriver
-
-    verfCode.login()
-    login.open_browser(BrowserDriver)
-    login.login(username='waiyan', password='123456lj', url=UrlBase.login_url)
-    studentExam.getExamPage(login.driver, mode=1)
-    studentExam.choseGrade('9B', 0)
-    studentExam.chosePaper('2021江苏省人机对话精品冲刺卷01', 1)
-    studentExam.doPaper('2021江苏省人机对话精品冲刺卷01')
-    studentExam.checkResult()

@@ -4,14 +4,16 @@
 # @Author    :姜楠
 # @Tool      :PyCharm
 import re
+
 from hytest import *
 from selenium import webdriver
 # 导入Select类
 from selenium.webdriver.support.ui import Select
+
+from config.config import getCaseConfigData
 from lib.CheckImgAndVideo import getEqualRate
-from lib.Mysql_Read import mysql_read_alpha
 from lib.CheckImgAndVideo import imageCheck, videoCheck
-from config.config import QType
+from lib.Mysql_Read import mysql_read
 
 try:
     import xml.etree.cElementTree as eT
@@ -72,6 +74,7 @@ def mysql_content_format(xml_str):
     # 提取小题 - web: class = question_content
     qs = root.findall('./Qs')
     qs += root.findall('./nop/Qs')
+    qs += root.findall('./Tk/Qs')
 
     question = []
     for q_q in qs:
@@ -89,7 +92,7 @@ def mysql_content_format(xml_str):
 
         question.append([ques, answer])
 
-    mp3 = [i.text for i in root.findall('La')]
+    mp3 = [i.text if i.text else i.find('./Sm').text for i in root.findall('La')]
 
     # class = china_q
     sh_q = [i.text for i in root.findall('Sh/p')]
@@ -208,38 +211,42 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
         CHECK_POINT(f'----小题数量对比 web:{len(ques_web_list)},mysql:{len(ques_mysql_list)}',
                     len(ques_web_list) == len(ques_mysql_list))
 
-        for ii in range(len(ques_web_list)):
-            INFO(f'------开始对比该大题的第 {ii + 1} 小问')
+        for index_small_topic, small_topic in enumerate(ques_web_list):
+            INFO(f'\n------开始对比该大题的第 {index_small_topic + 1} 小问')
 
             # 题目选项
-            if ques_mysql_list[ii][0]:
+            if ques_mysql_list[index_small_topic][0]:
                 # print('----进入小题题目对比')
-                ques = [i.text for i in ques_web_list[ii].find_elements_by_css_selector('.question_p') if i.text]
+                ques = [i.text for i in small_topic.find_elements_by_css_selector('.question_p') if i.text]
                 ques += [re.sub(r'[A-D]\. |[A-D]\.', '', i.text) for i in
-                         ques_web_list[ii].find_elements_by_css_selector('label') if i.text]
+                         small_topic.find_elements_by_css_selector('label') if i.text]
                 ques = [i.split('\n')[0] for i in ques if i]
                 INFO(ques)
-                INFO(ques_mysql_list[ii][0])
-                CHECK_POINT('------对比该小问问题内容', getEqualRate(ques, ques_mysql_list[ii][0]))
+                INFO(ques_mysql_list[index_small_topic][0])
+                CHECK_POINT('------对比该小问问题内容', getEqualRate(ques, ques_mysql_list[index_small_topic][0]))
 
             # 答案
-            if ques_mysql_list[ii][1]:
+            if ques_mysql_list[index_small_topic][1]:
                 # print('----进入小题答案完成')
                 # 单项选择类型
-                if ques_type in QType.opt:
-                    opt_btn = ques_web_list[ii].find_element_by_css_selector(
-                        f'label:nth-of-type({ques_mysql_list[ii][1][0]}) input')
+                if ques_type in getCaseConfigData.QType['opt']:
+                    # 单项选择答案 A,B,C,D...
+                    mysql_answer_opt = ques_mysql_list[index_small_topic][1][0]
+                    opt_btn = small_topic.find_element_by_css_selector(f'label:nth-of-type({mysql_answer_opt}) input')
                     driver.execute_script("$(arguments[0]).click()", opt_btn)
 
                 # 填空
-                elif ques_type in QType.blank:
-                    sends_input = ques_web_list[ii].find_elements_by_css_selector('input')
-                    for iii in range(len(ques_mysql_list[ii][1])):
-                        sends_input[iii].send_keys(ques_mysql_list[ii][1][iii])
+                elif ques_type in getCaseConfigData.QType['blank']:
+                    # 填空题答案 ['',''...]
+                    mysql_answer_blank = ques_mysql_list[index_small_topic][1]
+                    for index_blank, blank in enumerate(small_topic.find_elements_by_css_selector('input')):
+                        blank.send_keys(mysql_answer_blank[index_blank])
 
-                elif ques_type in QType.select:
-                    select = Select(ques_web_list[ii].find_element_by_css_selector("select"))
-                    select.select_by_index(ques_mysql_list[ii][1][0])
+                elif ques_type in getCaseConfigData.QType['select']:
+                    # 下拉选择答案 T,F...
+                    mysql_answer_select = ques_mysql_list[index_small_topic][1][0]
+                    select = Select(small_topic.find_element_by_css_selector("select"))
+                    select.select_by_index(mysql_answer_select)
 
             INFO('------该小问作答完成')
         # print('--小题作答完成！！！')
@@ -254,24 +261,12 @@ def web_check(elem: webdriver.Chrome, driver: webdriver.Chrome, mysql_connect, q
 
 
 def main_handler(ques_id, ques_type, driver, elem):
-    content = mysql_read_alpha(f"""select question_content from ts_test where id={ques_id}""")[0]
+    content = mysql_read(f"""select question_content from ts_test where id={ques_id}""")[0]
     INFO(f'----试题id是{ques_id}')
 
     # 格式化数据库代码
     driver.implicitly_wait(1)
     mysql_connect = mysql_content_format(content)
     web_check(elem, driver, mysql_connect, ques_type)
-    # print('\n')
+
     driver.implicitly_wait(5)
-
-    # print(content, '\n')
-    # print(mysql_connect)
-
-
-if __name__ == "__main__":
-    q_isd = 1
-    c = mysql_read_alpha(f"""select question_content from ts_test where id={q_isd}""")[0]
-    a = mysql_content_format(c)
-    print(c, '\n')
-    print(a)
-    pass
