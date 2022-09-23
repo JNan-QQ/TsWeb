@@ -76,10 +76,10 @@ class StudentExam:
 
         return True
 
-    def chosePaper(self, paper_name, mode, paper_id=None, grade_type=13):
+    def chosePaper(self, paper_name, mode, paper_id=None, grade_type=13, book_version=1):
 
         if paper_id:
-            self.driver.get(getCaseConfigData.Url['exam_url'][mode - 1] % (grade_type, int(paper_id)))
+            self.driver.get(getCaseConfigData.Url['exam_url'][mode - 1] % (book_version, grade_type, int(paper_id)))
             return True
 
         mode_paper_title = ['.rjdh_paper_title', '.bishi_paper_title', '.homework_title']

@@ -36,8 +36,8 @@ class getData:
         # 练习界面链接
         exam_host = student_host + '/Practice'
         exam_url = [
-            exam_host + '/paperPractice.html?type=ts&mode=free&version=1&grade=%s&id=%s',
-            exam_host + '/paperPractice.html?type=bs&mode=free&version=1&grade=%s&id=%s',
+            exam_host + '/paperPractice.html?type=ts&mode=free&version=%s&grade=%s&id=%s',
+            exam_host + '/paperPractice.html?type=bs&mode=free&version=%s&grade=%s&id=%s',
             exam_host + '/homework.html?mode=free&grade=%s&hid=%s'
         ]
 
